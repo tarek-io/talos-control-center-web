@@ -164,6 +164,23 @@
             background: linear-gradient(180deg, #2d70de, var(--sky-strong));
         }
 
+        .demo-btn {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(232, 240, 236, 0.96));
+            color: var(--ink);
+            border-color: var(--border-strong);
+        }
+
+        .demo-btn:hover {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(220, 232, 227, 0.98));
+        }
+
+        .demo-btn:disabled {
+            color: #7b8884;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
         .status {
             margin-bottom: 20px;
             padding: 14px 16px;
@@ -384,19 +401,20 @@
         </div>
 
         <div id="unsupported" class="unsupported" style="display: none;">
-            <h3>WebSerial Not Supported</h3>
-            <p>Your browser doesn't support WebSerial API. Please use Chrome, Edge, or Opera (version 89+) to use this tool.</p>
+            <h3>Web Serial Unavailable</h3>
+            <p>Live serial needs Chrome, Edge, or Opera (version 89+). Demo mode still works here.</p>
         </div>
 
         <div id="supported">
 
             <div class="controls">
                 <button id="connectBtn" class="connect-btn">Connect to Serial</button>
+                <button id="demoBtn" class="demo-btn">Connect Demo</button>
                 <button id="disconnectBtn" class="disconnect-btn" disabled>Disconnect</button>
                 <button id="clearBtn" class="clear-btn">Clear Trail</button>
             </div>
 
-            <div id="status" class="status disconnected">Disconnected - Click "Connect to Serial" to start</div>
+            <div id="status" class="status disconnected">Disconnected - Click "Connect to Serial" or "Connect Demo" to start</div>
 
             <div class="gesture-panel">
                 <div class="gesture-toolbar">
@@ -451,7 +469,12 @@
                 this.port = null;
                 this.reader = null;
                 this.isConnected = false;
+                this.isDemoMode = false;
                 this.portSourceLabel = 'selected serial port';
+                this.demoTimer = null;
+                this.demoFrameIndex = 0;
+                this.demoTickMs = 40;
+                this.webSerialSupported = ('serial' in navigator);
                 this.showTrail = true;
                 this.touchHistory1 = [];
                 this.touchHistory2 = [];
@@ -525,14 +548,19 @@
             }
 
             checkWebSerialSupport() {
-                if (!('serial' in navigator)) {
+                if (!this.webSerialSupported) {
                     document.getElementById('unsupported').style.display = 'block';
-                    document.getElementById('supported').style.display = 'none';
+                    const connectBtn = document.getElementById('connectBtn');
+                    if (connectBtn) {
+                        connectBtn.disabled = true;
+                        connectBtn.textContent = 'Serial Unavailable';
+                    }
                 }
             }
 
             initializeUI() {
                 document.getElementById('connectBtn').addEventListener('click', () => this.connect());
+                document.getElementById('demoBtn').addEventListener('click', () => this.connectDemo());
                 document.getElementById('disconnectBtn').addEventListener('click', () => this.disconnect());
                 document.getElementById('clearBtn').addEventListener('click', () => this.clearTrail());
                 const clearGestureBtn = document.getElementById('clearGestureBtn');
@@ -552,6 +580,9 @@
 
             async connect() {
                 try {
+                    if (this.isDemoMode) {
+                        await this.stopDemoMode();
+                    }
                     this.port = await navigator.serial.requestPort();
                     await this.port.open({ baudRate: 115200 });
                     this.portSourceLabel = this.describePortSource();
@@ -567,6 +598,8 @@
             }
 
             async disconnect() {
+                await this.stopDemoMode();
+
                 if (this.reader) {
                     await this.reader.cancel();
                     this.reader = null;
@@ -586,6 +619,34 @@
                 this.currentFingerCount = 0;
                 this.clearTouchInfo();
                 this.clearPalmDiagnostics();
+            }
+
+            async connectDemo() {
+                if (this.isDemoMode) {
+                    return;
+                }
+
+                if (this.isConnected) {
+                    await this.disconnect();
+                }
+
+                this.clearTrail();
+                this.clearPalmDiagnostics();
+                this.portSourceLabel = 'realistic demo source';
+                this.isDemoMode = true;
+                this.isConnected = true;
+                this.demoFrameIndex = 0;
+                this.clearSerialLog();
+                this.updateConnectionStatus(true, 'Connected - Receiving data from realistic demo source');
+                this.startDemoMode();
+            }
+
+            async stopDemoMode() {
+                if (this.demoTimer) {
+                    window.clearInterval(this.demoTimer);
+                    this.demoTimer = null;
+                }
+                this.isDemoMode = false;
             }
 
             describePortSource() {
@@ -614,17 +675,20 @@
             updateConnectionStatus(connected, message = '') {
                 const statusEl = document.getElementById('status');
                 const connectBtn = document.getElementById('connectBtn');
+                const demoBtn = document.getElementById('demoBtn');
                 const disconnectBtn = document.getElementById('disconnectBtn');
                 
                 if (connected) {
                     statusEl.className = 'status connected';
                     statusEl.textContent = message || `Connected - Receiving data from ${this.portSourceLabel}`;
                     connectBtn.disabled = true;
+                    demoBtn.disabled = true;
                     disconnectBtn.disabled = false;
                 } else {
                     statusEl.className = 'status disconnected';
-                    statusEl.textContent = message || 'Disconnected - Click "Connect to Serial" to start';
-                    connectBtn.disabled = false;
+                    statusEl.textContent = message || 'Disconnected - Click "Connect to Serial" or "Connect Demo" to start';
+                    connectBtn.disabled = !this.webSerialSupported;
+                    demoBtn.disabled = false;
                     disconnectBtn.disabled = true;
                 }
             }
@@ -659,6 +723,210 @@
                 } finally {
                     this.reader.releaseLock();
                 }
+            }
+
+            startDemoMode() {
+                const scriptedFrames = this.buildDemoFrames();
+                const emitNextFrame = () => {
+                    if (!this.isDemoMode || !this.isConnected) {
+                        return;
+                    }
+
+                    const frame = scriptedFrames[this.demoFrameIndex];
+                    frame.forEach((line) => {
+                        this.appendRawLine(line);
+                        this.processSerialData(line);
+                    });
+
+                    this.demoFrameIndex += 1;
+                    if (this.demoFrameIndex >= scriptedFrames.length) {
+                        this.demoFrameIndex = 0;
+                    }
+                };
+
+                emitNextFrame();
+                this.demoTimer = window.setInterval(emitNextFrame, this.demoTickMs);
+            }
+
+            buildDemoFrames() {
+                return [
+                    ...this.createIdleScene(20),
+                    ...this.createSwipeScene(2, 220, 280, 640, 280, 38),
+                    ...this.createIdleScene(14),
+                    ...this.createPinchScene(2, 260, 320, 600, 320, 38),
+                    ...this.createIdleScene(14),
+                    ...this.createSpreadScene(2, 360, 320, 500, 320, 38),
+                    ...this.createIdleScene(14),
+                    ...this.createSwipeScene(3, 260, 460, 620, 460, 42),
+                    ...this.createIdleScene(16),
+                    ...this.createPinchScene(3, 240, 420, 640, 420, 40),
+                    ...this.createIdleScene(16),
+                    ...this.createSpreadScene(3, 360, 430, 510, 430, 40),
+                    ...this.createIdleScene(16),
+                    ...this.createPalmScene(20)
+                ];
+            }
+
+            createIdleScene(frameCount) {
+                const frames = [];
+                for (let i = 0; i < frameCount; i++) {
+                    frames.push(this.makeFrame({
+                        fingers: 0,
+                        area: 0,
+                        palm: 0,
+                        contacts: []
+                    }));
+                }
+                return frames;
+            }
+
+            createPalmScene(frameCount) {
+                const frames = [];
+                for (let i = 0; i < frameCount; i++) {
+                    frames.push(this.makeFrame({
+                        fingers: 0,
+                        area: 22,
+                        palm: 1,
+                        contacts: []
+                    }));
+                }
+                return frames;
+            }
+
+            createSwipeScene(fingerCount, startX, startY, endX, endY, frameCount) {
+                const frames = [];
+                const gap = fingerCount === 2 ? 108 : 116;
+
+                for (let i = 0; i < frameCount; i++) {
+                    const t = frameCount === 1 ? 1 : i / (frameCount - 1);
+                    const baseX = this.lerp(startX, endX, this.easeInOut(t));
+                    const baseY = this.lerp(startY, endY, t);
+                    const contacts = [];
+                    const startOffset = -((fingerCount - 1) * gap) / 2;
+
+                    for (let finger = 0; finger < fingerCount; finger++) {
+                        const phase = (i * 0.35) + finger;
+                        contacts.push({
+                            x: baseX + startOffset + finger * gap,
+                            y: baseY + Math.sin(phase) * 6,
+                            strength: this.demoStrength(12, finger * 2, i)
+                        });
+                    }
+
+                    frames.push(this.makeFrame({
+                        fingers: fingerCount,
+                        area: fingerCount === 2 ? 9 : 11,
+                        palm: 0,
+                        contacts
+                    }));
+                }
+
+                return frames;
+            }
+
+            createPinchScene(fingerCount, leftStartX, centerY, rightStartX, rightEndY, frameCount) {
+                const frames = [];
+                const centerX = (leftStartX + rightStartX) / 2;
+                const thirdYOffset = 92;
+
+                for (let i = 0; i < frameCount; i++) {
+                    const t = frameCount === 1 ? 1 : i / (frameCount - 1);
+                    const eased = this.easeInOut(t);
+                    const leftX = this.lerp(leftStartX, centerX - 52, eased);
+                    const rightX = this.lerp(rightStartX, centerX + 52, eased);
+                    const contacts = [
+                        { x: leftX, y: centerY - 14, strength: this.demoStrength(13, 0, i) },
+                        { x: rightX, y: centerY + 14, strength: this.demoStrength(12, 2, i) }
+                    ];
+
+                    if (fingerCount === 3) {
+                        contacts.push({
+                            x: centerX + Math.sin(i * 0.32) * 12,
+                            y: this.lerp(centerY + thirdYOffset, centerY + 32, eased),
+                            strength: this.demoStrength(14, 4, i)
+                        });
+                    }
+
+                    frames.push(this.makeFrame({
+                        fingers: fingerCount,
+                        area: fingerCount === 2 ? 8 : 10,
+                        palm: 0,
+                        contacts
+                    }));
+                }
+
+                return frames;
+            }
+
+            createSpreadScene(fingerCount, leftStartX, centerY, rightStartX, rightEndY, frameCount) {
+                const frames = [];
+                const centerX = (leftStartX + rightStartX) / 2;
+                const thirdYOffset = 34;
+
+                for (let i = 0; i < frameCount; i++) {
+                    const t = frameCount === 1 ? 1 : i / (frameCount - 1);
+                    const eased = this.easeInOut(t);
+                    const leftX = this.lerp(leftStartX, centerX - 150, eased);
+                    const rightX = this.lerp(rightStartX, centerX + 150, eased);
+                    const contacts = [
+                        { x: leftX, y: centerY - 12, strength: this.demoStrength(12, 0, i) },
+                        { x: rightX, y: centerY + 12, strength: this.demoStrength(13, 2, i) }
+                    ];
+
+                    if (fingerCount === 3) {
+                        contacts.push({
+                            x: centerX + Math.sin(i * 0.28) * 14,
+                            y: this.lerp(centerY + thirdYOffset, centerY + 118, eased),
+                            strength: this.demoStrength(14, 4, i)
+                        });
+                    }
+
+                    frames.push(this.makeFrame({
+                        fingers: fingerCount,
+                        area: fingerCount === 2 ? 8 : 10,
+                        palm: 0,
+                        contacts
+                    }));
+                }
+
+                return frames;
+            }
+
+            makeFrame({ fingers, area, palm, contacts }) {
+                const lines = [
+                    `alive 0 rdy=HIGH i2c=ok trackpad=ok last=ok fingers=${fingers} area=${area} palm=${palm}`,
+                    `TOUCH_META F=${fingers}`
+                ];
+
+                if (contacts.length === 0) {
+                    lines.push('0,65535,0');
+                    return lines;
+                }
+
+                const payload = contacts
+                    .map((contact) => {
+                        const x = Math.max(0, Math.min(this.trackpadMaxX, Math.round(contact.x)));
+                        const y = Math.max(0, Math.min(this.trackpadMaxY, Math.round(contact.y)));
+                        const strength = Math.max(1, Math.min(32, Math.round(contact.strength)));
+                        return [x, y, strength];
+                    })
+                    .flat()
+                    .join(',');
+
+                lines.push(payload);
+                return lines;
+            }
+
+            demoStrength(base, offset, frameIndex) {
+                return base + offset + Math.sin(frameIndex * 0.36) * 2;
+            }
+
+            lerp(start, end, t) {
+                return start + ((end - start) * t);
+            }
+
+            easeInOut(t) {
+                return 0.5 - (Math.cos(Math.PI * t) / 2);
             }
 
             appendRawLine(line) {
