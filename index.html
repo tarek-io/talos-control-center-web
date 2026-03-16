@@ -97,6 +97,19 @@
             flex-wrap: wrap;
         }
 
+        .page-header-copy {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .page-header-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
         .eyebrow {
             margin: 0 0 8px 0;
             color: var(--accent);
@@ -186,6 +199,14 @@
             font-size: 15px;
             letter-spacing: 0.02em;
             box-shadow: 0 14px 28px rgba(15, 118, 110, 0.22);
+        }
+
+        .demo-help {
+            margin: 0;
+            max-width: 280px;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.45;
         }
 
         .demo-btn:disabled {
@@ -409,11 +430,14 @@
     <div class="container">
             <div class="page-header">
                 <div class="page-header-main">
-                    <div>
+                    <div class="page-header-copy">
                         <p class="eyebrow">Talos Hand</p>
                         <h1>Trackpad Interface</h1>
                     </div>
-                    <button id="demoBtn" class="demo-btn header-demo-btn">Connect Demo</button>
+                    <div class="page-header-actions">
+                        <button id="demoBtn" class="demo-btn header-demo-btn">Launch Demo Mode</button>
+                        <p class="demo-help">Runs a realistic simulated input stream for previewing the interface without hardware.</p>
+                    </div>
                 </div>
             </div>
 
@@ -430,7 +454,7 @@
                 <button id="clearBtn" class="clear-btn">Clear Trail</button>
             </div>
 
-            <div id="status" class="status disconnected">Disconnected - Click "Connect to Serial" or "Connect Demo" to start</div>
+            <div id="status" class="status disconnected">Disconnected - Use "Connect to Serial" for hardware or "Launch Demo Mode" for simulated input</div>
 
             <div class="gesture-panel">
                 <div class="gesture-toolbar">
@@ -702,7 +726,7 @@
                     disconnectBtn.disabled = false;
                 } else {
                     statusEl.className = 'status disconnected';
-                    statusEl.textContent = message || 'Disconnected - Click "Connect to Serial" or "Connect Demo" to start';
+                    statusEl.textContent = message || 'Disconnected - Use "Connect to Serial" for hardware or "Launch Demo Mode" for simulated input';
                     connectBtn.disabled = !this.webSerialSupported;
                     demoBtn.disabled = false;
                     disconnectBtn.disabled = true;
