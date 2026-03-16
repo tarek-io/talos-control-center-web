@@ -94,20 +94,25 @@
             display: flex;
             align-items: center;
             gap: 18px;
-            flex-wrap: wrap;
+            width: 100%;
         }
 
         .page-header-copy {
             display: flex;
             flex-direction: column;
             gap: 6px;
+            flex: 0 0 auto;
         }
 
         .page-header-actions {
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
+            align-items: center;
+            justify-content: center;
             gap: 8px;
+            flex: 1 1 auto;
+            text-align: center;
+            padding-inline: 24px 48px;
         }
 
         .eyebrow {
@@ -207,6 +212,7 @@
             color: var(--muted);
             font-size: 12px;
             line-height: 1.45;
+            text-align: center;
         }
 
         .demo-btn:disabled {
@@ -413,6 +419,21 @@
 
             .page-header {
                 margin-bottom: 18px;
+            }
+
+            .page-header-main {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .page-header-actions {
+                align-items: flex-start;
+                text-align: left;
+                padding-inline: 0;
+            }
+
+            .demo-help {
+                text-align: left;
             }
 
             .info-panel {
