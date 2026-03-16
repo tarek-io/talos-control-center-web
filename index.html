@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talos Hand Trackpad Interface</title>
+    <style>
+        :root {
+            --bg-cream: #f5efe3;
+            --bg-mint: #dfece6;
+            --bg-wash: #eff5f2;
+            --panel: rgba(255, 251, 244, 0.86);
+            --border: rgba(26, 42, 37, 0.12);
+            --border-strong: rgba(26, 42, 37, 0.22);
+            --ink: #16211e;
+            --muted: #5f6d68;
+            --accent: #0f766e;
+            --accent-strong: #0b5f59;
+            --danger: #b9382f;
+            --danger-strong: #932d27;
+            --sky: #2563eb;
+            --sky-strong: #1e4ec7;
+            --canvas-surface: #0f1413;
+            --serial-bg: #101614;
+            --serial-border: #24322d;
+            --serial-ink: #d8e7e0;
+            --shadow: 0 28px 80px rgba(33, 48, 43, 0.15);
+            --radius-xl: 28px;
+            --radius-lg: 20px;
+            --radius-md: 14px;
+            --font-ui: "Aptos", "Segoe UI Variable", "Trebuchet MS", sans-serif;
+            --font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-ui);
+            margin: 0;
+            padding: 32px 20px 48px;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at top left, rgba(15, 118, 110, 0.14), transparent 32%),
+                radial-gradient(circle at top right, rgba(37, 99, 235, 0.12), transparent 28%),
+                linear-gradient(145deg, var(--bg-cream), var(--bg-mint) 56%, var(--bg-wash));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--ink);
+        }
+
+        .container {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(251, 247, 239, 0.88));
+            border-radius: var(--radius-xl);
+            padding: 28px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.55);
+            max-width: 980px;
+            width: 100%;
+        }
+
+        .container::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px),
+                linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px);
+            background-size: 36px 36px;
+            opacity: 0.28;
+            pointer-events: none;
+        }
+
+        #supported {
+            position: relative;
+            z-index: 1;
+        }
+
+        .page-header {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .eyebrow {
+            margin: 0 0 8px 0;
+            color: var(--accent);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0;
+            color: var(--ink);
+            font-family: var(--font-display);
+            font-size: clamp(32px, 5vw, 48px);
+            line-height: 1;
+            letter-spacing: -0.03em;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        button {
+            padding: 12px 18px;
+            font-size: 14px;
+            font-weight: 700;
+            border: 1px solid transparent;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: transform 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease;
+            box-shadow: 0 10px 22px rgba(24, 33, 31, 0.08);
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+        }
+
+        .connect-btn {
+            background: linear-gradient(180deg, #14857d, var(--accent));
+            color: white;
+        }
+
+        .connect-btn:hover {
+            background: linear-gradient(180deg, #169088, var(--accent-strong));
+        }
+
+        .connect-btn:disabled {
+            background: #b8c8c4;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .disconnect-btn {
+            background: linear-gradient(180deg, #d34d42, var(--danger));
+            color: white;
+        }
+
+        .disconnect-btn:hover {
+            background: linear-gradient(180deg, #cf4439, var(--danger-strong));
+        }
+
+        .clear-btn {
+            background: linear-gradient(180deg, #377cf0, var(--sky));
+            color: white;
+        }
+
+        .clear-btn:hover {
+            background: linear-gradient(180deg, #2d70de, var(--sky-strong));
+        }
+
+        .status {
+            margin-bottom: 20px;
+            padding: 14px 16px;
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            border: 1px solid;
+            backdrop-filter: blur(14px);
+        }
+
+        .status.connected {
+            background: rgba(217, 245, 236, 0.88);
+            color: #0c5f49;
+            border-color: rgba(15, 118, 110, 0.18);
+        }
+
+        .status.disconnected {
+            background: rgba(249, 225, 223, 0.9);
+            color: #8c2f27;
+            border-color: rgba(185, 56, 47, 0.2);
+        }
+
+        .canvas-container {
+            border: 1px solid var(--border-strong);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin: 0 auto;
+            position: relative;
+            background: linear-gradient(180deg, rgba(255,255,255,0.76), rgba(240, 246, 242, 0.72));
+            padding: 12px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.5);
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            border-radius: 14px;
+            background-color: var(--canvas-surface);
+        }
+
+        .info-panel {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            margin-top: 20px;
+            gap: 14px;
+        }
+
+        .info-box {
+            background: var(--panel);
+            padding: 16px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+        }
+
+        .info-box h3 {
+            margin-top: 0;
+            color: var(--muted);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+        }
+
+        .info-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--ink);
+            margin-bottom: 5px;
+        }
+
+        .info-value-list {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--ink);
+            margin-bottom: 5px;
+            line-height: 1.35;
+            min-height: 76px;
+            white-space: pre-line;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .info-detail {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border);
+            font-size: 12px;
+            line-height: 1.5;
+            color: var(--muted);
+            white-space: pre-line;
+        }
+
+        .gesture-panel {
+            margin-top: 20px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+        }
+
+        .gesture-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 10px;
+        }
+
+        .gesture-title {
+            margin: 0;
+            color: var(--muted);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+        }
+
+        .gesture-current {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--ink);
+            margin-bottom: 10px;
+        }
+
+        .gesture-log {
+            margin: 0;
+            padding-left: 18px;
+            color: var(--muted);
+            max-height: 140px;
+            overflow-y: auto;
+        }
+
+        .gesture-log li {
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+
+        .serial-panel {
+            margin-top: 20px;
+            background: linear-gradient(180deg, rgba(19, 27, 25, 0.95), rgba(13, 18, 17, 0.96));
+            border: 1px solid rgba(66, 88, 80, 0.46);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .serial-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 12px;
+        }
+
+        .serial-stats {
+            font-size: 12px;
+            color: #9bb3aa;
+        }
+
+        .serial-output {
+            height: 180px;
+            overflow-y: auto;
+            background: var(--serial-bg);
+            color: var(--serial-ink);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--serial-border);
+            padding: 12px;
+            font-family: "Cascadia Mono", "Consolas", monospace;
+            font-size: 13px;
+            line-height: 1.45;
+            white-space: pre-wrap;
+        }
+
+        .unsupported {
+            background: rgba(255, 239, 236, 0.94);
+            border: 1px solid rgba(185, 56, 47, 0.18);
+            color: #9b2f27;
+            text-align: center;
+            padding: 20px;
+            border-radius: var(--radius-lg);
+        }
+
+        @media (max-width: 760px) {
+            body {
+                padding: 18px 14px 28px;
+            }
+
+            .container {
+                padding: 18px;
+                border-radius: 22px;
+            }
+
+            .page-header {
+                margin-bottom: 18px;
+            }
+
+            .info-panel {
+                grid-template-columns: 1fr;
+            }
+
+            .serial-toolbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="page-header">
+            <div>
+                <p class="eyebrow">Talos Hand</p>
+                <h1>Trackpad Interface</h1>
+            </div>
+        </div>
+
+        <div id="unsupported" class="unsupported" style="display: none;">
+            <h3>WebSerial Not Supported</h3>
+            <p>Your browser doesn't support WebSerial API. Please use Chrome, Edge, or Opera (version 89+) to use this tool.</p>
+        </div>
+
+        <div id="supported">
+
+            <div class="controls">
+                <button id="connectBtn" class="connect-btn">Connect to Serial</button>
+                <button id="disconnectBtn" class="disconnect-btn" disabled>Disconnect</button>
+                <button id="clearBtn" class="clear-btn">Clear Trail</button>
+            </div>
+
+            <div id="status" class="status disconnected">Disconnected - Click "Connect to Serial" to start</div>
+
+            <div class="gesture-panel">
+                <div class="gesture-toolbar">
+                    <h3 class="gesture-title">Gesture Detector</h3>
+                    <button id="clearGestureBtn" class="clear-btn">Clear Log</button>
+                </div>
+                <div id="gestureCurrent" class="gesture-current">NONE</div>
+                <ul id="gestureLog" class="gesture-log"></ul>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="touchCanvas" width="800" height="600"></canvas>
+            </div>
+
+            <div class="info-panel">
+                <div class="info-box">
+                    <h3>X Positions</h3>
+                    <div id="xValue" class="info-value-list">-</div>
+                    <div class="info-label">pixels</div>
+                </div>
+                <div class="info-box">
+                    <h3>Y Positions</h3>
+                    <div id="yValue" class="info-value-list">-</div>
+                    <div class="info-label">pixels</div>
+                </div>
+                <div class="info-box">
+                    <h3>Touches</h3>
+                    <div id="touchCountValue" class="info-value">0</div>
+                    <div class="info-label">active contacts</div>
+                    <div id="touchDiagValue" class="info-detail">Palm: -</div>
+                </div>
+            </div>
+
+            <div class="serial-panel">
+                <div class="serial-toolbar">
+                    <div>
+                        <h3 class="gesture-title">Live Serial Reader</h3>
+                        <div id="serialStats" class="serial-stats">Lines: 0</div>
+                    </div>
+                    <button id="clearSerialBtn" class="clear-btn">Clear Serial Log</button>
+                </div>
+                <div id="serialOutput" class="serial-output"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class TouchVisualizer {
+            constructor() {
+                this.canvas = document.getElementById('touchCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.port = null;
+                this.reader = null;
+                this.isConnected = false;
+                this.portSourceLabel = 'selected serial port';
+                this.showTrail = true;
+                this.touchHistory1 = [];
+                this.touchHistory2 = [];
+                this.touchHistory3 = [];
+                this.maxHistory = 50;
+                this.trailMaxAgeMs = 2000;
+                this.releaseFadeMs = 250;
+                this.rawLogMax = 400;
+                this.rawLineCount = 0;
+                this.slotJumpResetRaw = 150;
+                this.touchDotSize = 22;
+                this.touchRingSize = 27;
+                this.gridColumns = 8;
+                this.gridRows = 6;
+                this.trackpadVerticalScale = 1.33;
+                
+                // IQS550 resolution (typical values)
+                this.trackpadMaxX = 1023; // 10-bit resolution
+                this.trackpadMaxY = 1023; // 10-bit resolution
+
+                this.twoFingerSwipeMinDistanceRaw = 72;
+                this.twoFingerSwipeMaxDurationMs = 1270;
+                this.twoFingerPinchDeltaRaw = 34;
+                this.twoFingerPinchMaxDurationMs = 1500;
+                this.threeFingerSwipeMinDistanceRaw = 36;
+                this.threeFingerSwipeMaxDurationMs = 1700;
+                this.threeFingerPinchDeltaRaw = 42;
+                this.threeFingerPinchMaxDurationMs = 1600;
+                this.gestureDominanceRatio = 1.1;
+                this.threeFingerSwipeDominanceRatio = 0.8;
+                this.gestureLogMax = 20;
+                this.currentFingerCount = 0;
+                this.primaryStroke = {
+                    active: false,
+                    startX: 0,
+                    startY: 0,
+                    startTs: 0,
+                    lastX: 0,
+                    lastY: 0,
+                    lastTs: 0
+                };
+                this.twoFingerStroke = {
+                    active: false,
+                    startCenterX: 0,
+                    startCenterY: 0,
+                    startTs: 0,
+                    lastCenterX: 0,
+                    lastCenterY: 0,
+                    lastTs: 0,
+                    startSpread: 0,
+                    lastSpread: 0
+                };
+                this.threeFingerStroke = {
+                    active: false,
+                    startCenterX: 0,
+                    startCenterY: 0,
+                    startTs: 0,
+                    lastCenterX: 0,
+                    lastCenterY: 0,
+                    lastTs: 0,
+                    startSpread: 0,
+                    lastSpread: 0
+                };
+                this.lastPalmDiagnostics = {
+                    palm: null
+                };
+
+                this.initializeUI();
+                this.startAnimation();
+                this.checkWebSerialSupport();
+            }
+
+            checkWebSerialSupport() {
+                if (!('serial' in navigator)) {
+                    document.getElementById('unsupported').style.display = 'block';
+                    document.getElementById('supported').style.display = 'none';
+                }
+            }
+
+            initializeUI() {
+                document.getElementById('connectBtn').addEventListener('click', () => this.connect());
+                document.getElementById('disconnectBtn').addEventListener('click', () => this.disconnect());
+                document.getElementById('clearBtn').addEventListener('click', () => this.clearTrail());
+                const clearGestureBtn = document.getElementById('clearGestureBtn');
+                if (clearGestureBtn) {
+                    clearGestureBtn.addEventListener('click', () => this.clearGestureLog());
+                }
+                const clearSerialBtn = document.getElementById('clearSerialBtn');
+                if (clearSerialBtn) {
+                    clearSerialBtn.addEventListener('click', () => this.clearSerialLog());
+                }
+
+                // Initialize canvas
+                this.ctx.fillStyle = '#1a1a1a';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                this.drawGrid();
+            }
+
+            async connect() {
+                try {
+                    this.port = await navigator.serial.requestPort();
+                    await this.port.open({ baudRate: 115200 });
+                    this.portSourceLabel = this.describePortSource();
+                    
+                    this.isConnected = true;
+                    this.updateConnectionStatus(true, `Connected - Receiving data from ${this.portSourceLabel}`);
+                    this.startReading();
+                    
+                } catch (error) {
+                    console.error('Connection error:', error);
+                    this.updateConnectionStatus(false, 'Connection failed: ' + error.message);
+                }
+            }
+
+            async disconnect() {
+                if (this.reader) {
+                    await this.reader.cancel();
+                    this.reader = null;
+                }
+                
+                if (this.port) {
+                    await this.port.close();
+                    this.port = null;
+                }
+                
+                this.isConnected = false;
+                this.portSourceLabel = 'selected serial port';
+                this.updateConnectionStatus(false);
+                this.primaryStroke.active = false;
+                this.twoFingerStroke.active = false;
+                this.threeFingerStroke.active = false;
+                this.currentFingerCount = 0;
+                this.clearTouchInfo();
+                this.clearPalmDiagnostics();
+            }
+
+            describePortSource() {
+                if (!this.port || typeof this.port.getInfo !== 'function') {
+                    return 'selected serial port';
+                }
+
+                const info = this.port.getInfo();
+                const parts = [];
+
+                if (typeof info.usbVendorId === 'number') {
+                    parts.push(`VID ${info.usbVendorId.toString(16).toUpperCase().padStart(4, '0')}`);
+                }
+
+                if (typeof info.usbProductId === 'number') {
+                    parts.push(`PID ${info.usbProductId.toString(16).toUpperCase().padStart(4, '0')}`);
+                }
+
+                if (parts.length > 0) {
+                    return `selected serial port (${parts.join(' ')})`;
+                }
+
+                return 'selected serial port';
+            }
+
+            updateConnectionStatus(connected, message = '') {
+                const statusEl = document.getElementById('status');
+                const connectBtn = document.getElementById('connectBtn');
+                const disconnectBtn = document.getElementById('disconnectBtn');
+                
+                if (connected) {
+                    statusEl.className = 'status connected';
+                    statusEl.textContent = message || `Connected - Receiving data from ${this.portSourceLabel}`;
+                    connectBtn.disabled = true;
+                    disconnectBtn.disabled = false;
+                } else {
+                    statusEl.className = 'status disconnected';
+                    statusEl.textContent = message || 'Disconnected - Click "Connect to Serial" to start';
+                    connectBtn.disabled = false;
+                    disconnectBtn.disabled = true;
+                }
+            }
+
+            async startReading() {
+                const textDecoder = new TextDecoderStream();
+                const readableStreamClosed = this.port.readable.pipeTo(textDecoder.writable);
+                this.reader = textDecoder.readable.getReader();
+
+                let buffer = '';
+
+                try {
+                    while (this.isConnected) {
+                        const { value, done } = await this.reader.read();
+                        if (done) break;
+
+                        buffer += value;
+                        const lines = buffer.split('\n');
+                        buffer = lines.pop(); // Keep incomplete line in buffer
+
+                        for (const line of lines) {
+                            const trimmed = line.trim();
+                            if (!trimmed) {
+                                continue;
+                            }
+                            this.appendRawLine(trimmed);
+                            this.processSerialData(trimmed);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Reading error:', error);
+                } finally {
+                    this.reader.releaseLock();
+                }
+            }
+
+            appendRawLine(line) {
+                const out = document.getElementById('serialOutput');
+                const stats = document.getElementById('serialStats');
+                if (!out || !stats) {
+                    return;
+                }
+                const wasAtBottom = (out.scrollTop + out.clientHeight + 8) >= out.scrollHeight;
+                const entry = document.createElement('div');
+                entry.textContent = line;
+                out.appendChild(entry);
+
+                while (out.children.length > this.rawLogMax) {
+                    out.removeChild(out.firstChild);
+                }
+
+                this.rawLineCount += 1;
+                stats.textContent = `Lines: ${this.rawLineCount}`;
+
+                if (wasAtBottom) {
+                    out.scrollTop = out.scrollHeight;
+                }
+            }
+
+            clearSerialLog() {
+                const out = document.getElementById('serialOutput');
+                const stats = document.getElementById('serialStats');
+                if (!out || !stats) {
+                    return;
+                }
+                out.textContent = '';
+                this.rawLineCount = 0;
+                stats.textContent = 'Lines: 0';
+            }
+
+            clearGestureLog() {
+                const currentEl = document.getElementById('gestureCurrent');
+                const logEl = document.getElementById('gestureLog');
+                if (!currentEl || !logEl) {
+                    return;
+                }
+
+                currentEl.textContent = 'NONE';
+                logEl.textContent = '';
+            }
+
+            mapRawXToCanvas(rawX) {
+                const x = (rawX / this.trackpadMaxX) * this.canvas.width;
+                return Math.max(0, Math.min(this.canvas.width, x));
+            }
+
+            mapRawYToCanvas(rawY) {
+                const y = (rawY / this.trackpadMaxY) * this.canvas.height * this.trackpadVerticalScale;
+                return Math.max(0, Math.min(this.canvas.height, y));
+            }
+
+            formatAxisValues(contacts, axis) {
+                if (contacts.length === 0) {
+                    return '-';
+                }
+
+                const labels = (contacts.length >= 3)
+                    ? ['L', 'M', 'R']
+                    : (contacts.length === 2 ? ['L', 'R'] : ['L']);
+
+                return contacts
+                    .map((contact, index) => `${labels[index]}: ${Math.round(contact[axis])}`)
+                    .join('\n');
+            }
+
+            updateTouchInfo(contacts) {
+                document.getElementById('xValue').textContent = this.formatAxisValues(contacts, 'x');
+                document.getElementById('yValue').textContent = this.formatAxisValues(contacts, 'y');
+                document.getElementById('touchCountValue').textContent = contacts.length.toString();
+            }
+
+            clearTouchInfo() {
+                this.updateTouchInfo([]);
+            }
+
+            updatePalmDiagnostics(fingers, area, palm) {
+                const diagEl = document.getElementById('touchDiagValue');
+                if (!diagEl) {
+                    return;
+                }
+
+                this.lastPalmDiagnostics = { palm };
+                diagEl.textContent = `Palm: ${palm ? 'DETECTED' : 'clear'}`;
+            }
+
+            clearPalmDiagnostics() {
+                const diagEl = document.getElementById('touchDiagValue');
+                if (!diagEl) {
+                    return;
+                }
+
+                this.lastPalmDiagnostics = {
+                    palm: null
+                };
+                diagEl.textContent = 'Palm: -';
+            }
+
+            updateFingerCount(rawCount) {
+                const next = Math.max(0, Math.min(3, Number.isNaN(rawCount) ? 0 : rawCount));
+
+                if (next === this.currentFingerCount) return;
+
+                if (this.currentFingerCount === 1) {
+                    this.finalizePrimaryStroke();
+                } else if (this.currentFingerCount === 2) {
+                    this.finalizeTwoFingerStroke();
+                } else if (this.currentFingerCount >= 3) {
+                    this.finalizeThreeFingerStroke();
+                }
+
+                this.currentFingerCount = next;
+            }
+
+            processSerialData(data) {
+                if (!data) return;
+                if (data.startsWith('alive ')) {
+                    const diagMatch = data.match(/fingers=(\d+)\s+area=(\d+)\s+palm=(\d+)/);
+                    if (diagMatch) {
+                        this.updatePalmDiagnostics(
+                            parseInt(diagMatch[1], 10),
+                            parseInt(diagMatch[2], 10),
+                            parseInt(diagMatch[3], 10) !== 0
+                        );
+                    }
+                    return;
+                }
+                if (data.startsWith('TOUCH_META')) {
+                    const match = data.match(/F=(\d+)/);
+                    if (match) {
+                        this.updateFingerCount(parseInt(match[1], 10));
+                    }
+                    return;
+                }
+
+                const parts = data.split(',').map((p) => p.trim());
+
+                // Backward-compatible formats:
+                // 3 fields: x,y,strength
+                // 4 fields: x,y,strength,area
+                // 6 fields: x1,y1,s1,x2,y2,s2
+                // 9 fields: x1,y1,s1,x2,y2,s2,x3,y3,s3
+                if (parts.length >= 9) {
+                    const x1 = parseInt(parts[0], 10);
+                    const y1 = parseInt(parts[1], 10);
+                    const s1 = parseInt(parts[2], 10);
+                    const x2 = parseInt(parts[3], 10);
+                    const y2 = parseInt(parts[4], 10);
+                    const s2 = parseInt(parts[5], 10);
+                    const x3 = parseInt(parts[6], 10);
+                    const y3 = parseInt(parts[7], 10);
+                    const s3 = parseInt(parts[8], 10);
+
+                    if ([x1, y1, s1, x2, y2, s2, x3, y3, s3].some(Number.isNaN)) return;
+
+                    const f1Idle = ((x1 === 65535 && y1 === 65535) || (x1 === 0 && y1 === 65535 && s1 === 0));
+                    const f2Idle = ((x2 === 65535 && y2 === 65535) || (x2 === 0 && y2 === 65535 && s2 === 0));
+                    const f3Idle = ((x3 === 65535 && y3 === 65535) || (x3 === 0 && y3 === 65535 && s3 === 0));
+                    if (f1Idle && f2Idle && f3Idle) {
+                        this.handleIdleFrame();
+                        return;
+                    }
+
+                    this.updateTripleTouch(x1, y1, s1, x2, y2, s2, x3, y3, s3);
+                    return;
+                }
+
+                if (parts.length >= 6) {
+                    const x1 = parseInt(parts[0], 10);
+                    const y1 = parseInt(parts[1], 10);
+                    const s1 = parseInt(parts[2], 10);
+                    const x2 = parseInt(parts[3], 10);
+                    const y2 = parseInt(parts[4], 10);
+                    const s2 = parseInt(parts[5], 10);
+
+                    if ([x1, y1, s1, x2, y2, s2].some(Number.isNaN)) return;
+
+                    const f1Idle = ((x1 === 65535 && y1 === 65535) || (x1 === 0 && y1 === 65535 && s1 === 0));
+                    const f2Idle = ((x2 === 65535 && y2 === 65535) || (x2 === 0 && y2 === 65535 && s2 === 0));
+                    if (f1Idle && f2Idle) {
+                        this.handleIdleFrame();
+                        return;
+                    }
+
+                    this.updateDualTouch(x1, y1, s1, x2, y2, s2);
+                    return;
+                }
+
+                if (parts.length >= 3) {
+                    const x = parseInt(parts[0], 10);
+                    const y = parseInt(parts[1], 10);
+                    const strength = parseInt(parts[2], 10);
+                    if (isNaN(x) || isNaN(y) || isNaN(strength)) return;
+
+                    const idle = ((x === 65535 && y === 65535) || (x === 0 && y === 65535 && strength === 0));
+                    if (idle) {
+                        this.handleIdleFrame();
+                        return;
+                    }
+
+                    this.updateSingleTouch(x, y, strength);
+                    return;
+                }
+            }
+
+            beginReleaseFade(history) {
+                if (history.length === 0) {
+                    return;
+                }
+
+                const latest = history[history.length - 1];
+                history.length = 0;
+                history.push({
+                    ...latest,
+                    timestamp: Date.now(),
+                    releaseGhost: true
+                });
+            }
+
+            handleIdleFrame() {
+                this.finalizeThreeFingerStroke();
+                this.finalizeTwoFingerStroke();
+                this.finalizePrimaryStroke();
+                this.currentFingerCount = 0;
+                this.beginReleaseFade(this.touchHistory1);
+                this.beginReleaseFade(this.touchHistory2);
+                this.beginReleaseFade(this.touchHistory3);
+                this.clearTouchInfo();
+            }
+
+            pushTouch(history, rawX, rawY, strength) {
+                if (rawX > this.trackpadMaxX) this.trackpadMaxX = rawX;
+                if (rawY > this.trackpadMaxY) this.trackpadMaxY = rawY;
+
+                const x = this.mapRawXToCanvas(rawX);
+                const y = this.mapRawYToCanvas(rawY);
+                const touch = { x, y, rawX, rawY, strength, timestamp: Date.now() };
+
+                if (history.length > 0) {
+                    const last = history[history.length - 1];
+                    const dx = rawX - last.rawX;
+                    const dy = rawY - last.rawY;
+                    const jump = Math.hypot(dx, dy);
+
+                    if (jump > this.slotJumpResetRaw) {
+                        history.length = 0;
+                    }
+                }
+
+                if (this.showTrail) {
+                    history.push(touch);
+                    if (history.length > this.maxHistory) {
+                        history.shift();
+                    }
+                } else {
+                    history.length = 0;
+                    history.push(touch);
+                }
+            }
+
+            sortContactsByX(contacts) {
+                return contacts
+                    .filter((contact) => contact.strength > 0)
+                    .sort((a, b) => a.x - b.x);
+            }
+
+            updateSingleTouch(rawX, rawY, strength) {
+                this.updateTouchInfo([{ x: rawX, y: rawY, strength }]);
+
+                this.pushTouch(this.touchHistory1, rawX, rawY, strength);
+                this.touchHistory2 = [];
+                this.touchHistory3 = [];
+
+                if (this.currentFingerCount >= 3) {
+                    if (this.primaryStroke.active) this.finalizePrimaryStroke();
+                    if (this.twoFingerStroke.active) this.finalizeTwoFingerStroke();
+                    return;
+                }
+
+                if (this.currentFingerCount === 2) {
+                    if (this.primaryStroke.active) this.finalizePrimaryStroke();
+                    if (this.threeFingerStroke.active) this.finalizeThreeFingerStroke();
+                    return;
+                }
+
+                if (this.twoFingerStroke.active) this.finalizeTwoFingerStroke();
+                if (this.threeFingerStroke.active) this.finalizeThreeFingerStroke();
+                this.updatePrimaryStroke(rawX, rawY);
+            }
+
+            updateDualTouch(x1, y1, s1, x2, y2, s2) {
+                const contacts = this.sortContactsByX([
+                    { x: x1, y: y1, strength: s1 },
+                    { x: x2, y: y2, strength: s2 }
+                ]);
+                this.updateTouchInfo(contacts);
+
+                if (contacts.length >= 1) {
+                    this.pushTouch(this.touchHistory1, contacts[0].x, contacts[0].y, contacts[0].strength);
+                } else {
+                    this.touchHistory1 = [];
+                }
+
+                if (contacts.length >= 2) {
+                    this.pushTouch(this.touchHistory2, contacts[1].x, contacts[1].y, contacts[1].strength);
+                } else {
+                    this.touchHistory2 = [];
+                }
+                this.touchHistory3 = [];
+
+                if (contacts.length >= 2) {
+                    if (this.currentFingerCount >= 3) {
+                        if (this.primaryStroke.active) this.finalizePrimaryStroke();
+                        if (this.twoFingerStroke.active) this.finalizeTwoFingerStroke();
+                        return;
+                    }
+
+                    if (this.threeFingerStroke.active) this.finalizeThreeFingerStroke();
+                    this.primaryStroke.active = false;
+                    this.updateTwoFingerStroke(contacts[0].x, contacts[0].y, contacts[1].x, contacts[1].y);
+                }
+            }
+
+            computeCentroidAndSpread(contacts) {
+                if (contacts.length === 0) {
+                    return { centerX: 0, centerY: 0, spread: 0 };
+                }
+
+                const centerX = contacts.reduce((sum, contact) => sum + contact.x, 0) / contacts.length;
+                const centerY = contacts.reduce((sum, contact) => sum + contact.y, 0) / contacts.length;
+                const spread = contacts.reduce((sum, contact) => {
+                    return sum + Math.hypot(contact.x - centerX, contact.y - centerY);
+                }, 0) / contacts.length;
+
+                return { centerX, centerY, spread };
+            }
+
+            updateTripleTouch(x1, y1, s1, x2, y2, s2, x3, y3, s3) {
+                const contacts = this.sortContactsByX([
+                    { x: x1, y: y1, strength: s1 },
+                    { x: x2, y: y2, strength: s2 },
+                    { x: x3, y: y3, strength: s3 }
+                ]);
+                this.updateTouchInfo(contacts);
+
+                if (contacts.length >= 1) {
+                    this.pushTouch(this.touchHistory1, contacts[0].x, contacts[0].y, contacts[0].strength);
+                } else {
+                    this.touchHistory1 = [];
+                }
+
+                if (contacts.length >= 2) {
+                    this.pushTouch(this.touchHistory2, contacts[1].x, contacts[1].y, contacts[1].strength);
+                } else {
+                    this.touchHistory2 = [];
+                }
+
+                if (contacts.length >= 3) {
+                    this.pushTouch(this.touchHistory3, contacts[2].x, contacts[2].y, contacts[2].strength);
+                } else {
+                    this.touchHistory3 = [];
+                }
+
+                if (contacts.length >= 3) {
+                    if (this.primaryStroke.active) this.finalizePrimaryStroke();
+                    if (this.twoFingerStroke.active) this.finalizeTwoFingerStroke();
+                    const metrics = this.computeCentroidAndSpread(contacts);
+                    this.updateThreeFingerStroke(metrics.centerX, metrics.centerY, metrics.spread);
+                }
+            }
+
+            updatePrimaryStroke(rawX, rawY) {
+                const now = Date.now();
+
+                if (!this.primaryStroke.active) {
+                    this.primaryStroke.active = true;
+                    this.primaryStroke.startX = rawX;
+                    this.primaryStroke.startY = rawY;
+                    this.primaryStroke.startTs = now;
+                }
+
+                this.primaryStroke.lastX = rawX;
+                this.primaryStroke.lastY = rawY;
+                this.primaryStroke.lastTs = now;
+            }
+
+            finalizePrimaryStroke() {
+                if (!this.primaryStroke.active) return;
+
+                this.primaryStroke.active = false;
+            }
+
+            updateTwoFingerStroke(x1, y1, x2, y2) {
+                const metrics = this.computeCentroidAndSpread([
+                    { x: x1, y: y1, strength: 1 },
+                    { x: x2, y: y2, strength: 1 }
+                ]);
+                this.updateTwoFingerStrokeCenter(metrics.centerX, metrics.centerY, metrics.spread);
+            }
+
+            updateTwoFingerStrokeCenter(centerX, centerY, spread = null) {
+                if (spread === null) {
+                    return;
+                }
+
+                const now = Date.now();
+
+                if (!this.twoFingerStroke.active) {
+                    this.twoFingerStroke.active = true;
+                    this.twoFingerStroke.startCenterX = centerX;
+                    this.twoFingerStroke.startCenterY = centerY;
+                    this.twoFingerStroke.startTs = now;
+                    this.twoFingerStroke.startSpread = spread;
+                }
+
+                this.twoFingerStroke.lastCenterX = centerX;
+                this.twoFingerStroke.lastCenterY = centerY;
+                this.twoFingerStroke.lastTs = now;
+                this.twoFingerStroke.lastSpread = spread;
+            }
+
+            finalizeTwoFingerStroke() {
+                if (!this.twoFingerStroke.active) return;
+
+                const dx = this.twoFingerStroke.lastCenterX - this.twoFingerStroke.startCenterX;
+                const dy = this.twoFingerStroke.lastCenterY - this.twoFingerStroke.startCenterY;
+                const swipeDistance = Math.hypot(dx, dy);
+                const spreadDelta = this.twoFingerStroke.lastSpread - this.twoFingerStroke.startSpread;
+                const spreadDistance = Math.abs(spreadDelta);
+                const duration = this.twoFingerStroke.lastTs - this.twoFingerStroke.startTs;
+
+                if (spreadDistance >= this.twoFingerPinchDeltaRaw &&
+                    duration <= this.twoFingerPinchMaxDurationMs &&
+                    spreadDistance >= swipeDistance * this.gestureDominanceRatio) {
+                    this.emitGesture(spreadDelta < 0 ? 'TWO_FINGER_PINCH' : 'TWO_FINGER_SPREAD',
+                                     spreadDistance,
+                                     duration);
+                } else if (swipeDistance >= this.twoFingerSwipeMinDistanceRaw &&
+                           duration <= this.twoFingerSwipeMaxDurationMs &&
+                           swipeDistance >= spreadDistance * this.gestureDominanceRatio) {
+                    this.emitGesture('TWO_FINGER_SWIPE', swipeDistance, duration);
+                }
+
+                this.twoFingerStroke.active = false;
+            }
+
+            updateThreeFingerStroke(centerX, centerY, spread = null) {
+                if (spread === null) {
+                    return;
+                }
+
+                const now = Date.now();
+
+                if (!this.threeFingerStroke.active) {
+                    this.threeFingerStroke.active = true;
+                    this.threeFingerStroke.startCenterX = centerX;
+                    this.threeFingerStroke.startCenterY = centerY;
+                    this.threeFingerStroke.startTs = now;
+                    this.threeFingerStroke.startSpread = spread;
+                }
+
+                this.threeFingerStroke.lastCenterX = centerX;
+                this.threeFingerStroke.lastCenterY = centerY;
+                this.threeFingerStroke.lastTs = now;
+                this.threeFingerStroke.lastSpread = spread;
+            }
+
+            finalizeThreeFingerStroke() {
+                if (!this.threeFingerStroke.active) return;
+
+                const dx = this.threeFingerStroke.lastCenterX - this.threeFingerStroke.startCenterX;
+                const dy = this.threeFingerStroke.lastCenterY - this.threeFingerStroke.startCenterY;
+                const swipeDistance = Math.hypot(dx, dy);
+                const spreadDelta = this.threeFingerStroke.lastSpread - this.threeFingerStroke.startSpread;
+                const spreadDistance = Math.abs(spreadDelta);
+                const duration = this.threeFingerStroke.lastTs - this.threeFingerStroke.startTs;
+
+                if (spreadDistance >= this.threeFingerPinchDeltaRaw &&
+                    duration <= this.threeFingerPinchMaxDurationMs &&
+                    spreadDistance >= swipeDistance * this.gestureDominanceRatio) {
+                    this.emitGesture(spreadDelta < 0 ? 'THREE_FINGER_PINCH' : 'THREE_FINGER_SPREAD',
+                                     spreadDistance,
+                                     duration);
+                } else if (swipeDistance >= this.threeFingerSwipeMinDistanceRaw &&
+                           duration <= this.threeFingerSwipeMaxDurationMs &&
+                           swipeDistance >= spreadDistance * this.threeFingerSwipeDominanceRatio) {
+                    this.emitGesture('THREE_FINGER_SWIPE', swipeDistance, duration);
+                }
+
+                this.threeFingerStroke.active = false;
+            }
+
+            emitGesture(name, distance, duration) {
+                const currentEl = document.getElementById('gestureCurrent');
+                const logEl = document.getElementById('gestureLog');
+                const ts = new Date().toLocaleTimeString();
+                const detail = `d=${Math.round(distance)} t=${Math.round(duration)}ms`;
+
+                currentEl.textContent = `${name} (${detail})`;
+
+                const li = document.createElement('li');
+                li.textContent = `${ts} - ${name} (${detail})`;
+                logEl.prepend(li);
+
+                while (logEl.children.length > this.gestureLogMax) {
+                    logEl.removeChild(logEl.lastChild);
+                }
+            }
+
+            drawGrid() {
+                this.ctx.strokeStyle = '#333';
+                this.ctx.lineWidth = 1;
+                
+                // Vertical lines
+                for (let i = 0; i <= this.gridColumns; i++) {
+                    const x = (i / this.gridColumns) * this.canvas.width;
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(x, 0);
+                    this.ctx.lineTo(x, this.canvas.height);
+                    this.ctx.stroke();
+                }
+                
+                // Horizontal lines
+                for (let i = 0; i <= this.gridRows; i++) {
+                    const y = (i / this.gridRows) * this.canvas.height;
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(0, y);
+                    this.ctx.lineTo(this.canvas.width, y);
+                    this.ctx.stroke();
+                }
+            }
+
+            draw() {
+                // Clear canvas
+                this.ctx.fillStyle = '#1a1a1a';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Draw grid
+                this.drawGrid();
+
+                this.drawTouchTrail(this.touchHistory1, ['#6cc4ff', '#1f6feb'], '#7dd3fc');
+                this.drawTouchTrail(this.touchHistory2, ['#ff8f8f', '#d6336c'], '#fca5a5');
+                this.drawTouchTrail(this.touchHistory3, ['#8ce99a', '#2f9e44'], '#b2f2bb');
+            }
+
+            drawTouchTrail(history, gradientColors, ringColor) {
+                if (history.length === 0) return;
+
+                const now = Date.now();
+                const activeTouches = history.filter((touch) => {
+                    const maxAge = touch.releaseGhost ? this.releaseFadeMs : this.trailMaxAgeMs;
+                    return (now - touch.timestamp) <= maxAge;
+                });
+
+                history.length = 0;
+                history.push(...activeTouches);
+
+                if (history.length === 0) return;
+
+                for (let i = 0; i < history.length; i++) {
+                    const touch = history[i];
+                    const age = now - touch.timestamp;
+                    const maxAge = touch.releaseGhost ? this.releaseFadeMs : this.trailMaxAgeMs;
+
+                    if (age > maxAge) continue;
+
+                    const ageOpacity = Math.max(0, 1 - (age / maxAge));
+                    const positionOpacity = (i + 1) / history.length;
+                    const opacity = ageOpacity * positionOpacity;
+                    const size = this.touchDotSize;
+
+                    this.ctx.save();
+                    this.ctx.globalAlpha = opacity;
+
+                    const gradient = this.ctx.createRadialGradient(
+                        touch.x, touch.y, 0,
+                        touch.x, touch.y, size
+                    );
+                    gradient.addColorStop(0, gradientColors[0]);
+                    gradient.addColorStop(0.7, gradientColors[1]);
+                    gradient.addColorStop(1, 'transparent');
+
+                    this.ctx.fillStyle = gradient;
+                    this.ctx.beginPath();
+                    this.ctx.arc(touch.x, touch.y, size, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    this.ctx.restore();
+                }
+
+                const latest = history[history.length - 1];
+                this.ctx.strokeStyle = ringColor;
+                this.ctx.lineWidth = 2;
+                this.ctx.beginPath();
+                this.ctx.arc(latest.x, latest.y, this.touchRingSize, 0, Math.PI * 2);
+                this.ctx.stroke();
+            }
+
+            clearTrail() {
+                this.touchHistory1 = [];
+                this.touchHistory2 = [];
+                this.touchHistory3 = [];
+                this.primaryStroke.active = false;
+                this.twoFingerStroke.active = false;
+                this.threeFingerStroke.active = false;
+                this.currentFingerCount = 0;
+                this.clearTouchInfo();
+            }
+
+            startAnimation() {
+                const animate = () => {
+                    this.draw();
+                    requestAnimationFrame(animate);
+                };
+                animate();
+            }
+        }
+
+        // Initialize the visualizer when the page loads
+        window.addEventListener('load', () => {
+            new TouchVisualizer();
+        });
+    </script>
+</body>
+</html>
+
+
