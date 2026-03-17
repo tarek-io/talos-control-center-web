@@ -180,6 +180,29 @@
             background: linear-gradient(180deg, #cf4439, var(--danger-strong));
         }
 
+        .pause-btn {
+            background: linear-gradient(180deg, #f2a63b, #d97706);
+            color: white;
+            border-color: rgba(180, 83, 9, 0.22);
+        }
+
+        .pause-btn:hover {
+            background: linear-gradient(180deg, #f5af4d, #c76d05);
+        }
+
+        .pause-btn.is-active {
+            background: linear-gradient(180deg, #f6b25a, #b45309);
+            box-shadow: 0 12px 24px rgba(180, 83, 9, 0.2);
+        }
+
+        .pause-btn:disabled {
+            background: #d4d8d6;
+            color: #7b8884;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
         .clear-btn {
             background: linear-gradient(180deg, #377cf0, var(--sky));
             color: white;
@@ -241,6 +264,12 @@
             background: rgba(249, 225, 223, 0.9);
             color: #8c2f27;
             border-color: rgba(185, 56, 47, 0.2);
+        }
+
+        .status.paused {
+            background: rgba(255, 243, 224, 0.94);
+            color: #9a4d00;
+            border-color: rgba(180, 83, 9, 0.22);
         }
 
         .mode-panel {
@@ -1219,6 +1248,7 @@
 
             <div class="controls">
                 <button id="connectBtn" class="connect-btn">Connect to Serial</button>
+                <button id="pauseBtn" class="pause-btn" disabled>Pause Dashboard</button>
                 <button id="disconnectBtn" class="disconnect-btn" disabled>Disconnect</button>
             </div>
 
@@ -1425,6 +1455,8 @@
                 this.reader = null;
                 this.isConnected = false;
                 this.isDemoMode = false;
+                this.isDashboardPaused = false;
+                this.dashboardPauseReplayWasPlaying = false;
                 this.portLabel = 'selected serial port';
                 this.demoTimer = null;
                 this.demoFrameIndex = 0;
@@ -1639,6 +1671,7 @@
             initializeUI() {
                 document.getElementById('connectBtn').addEventListener('click', () => this.connect());
                 document.getElementById('demoBtn').addEventListener('click', () => this.connectDemo());
+                document.getElementById('pauseBtn').addEventListener('click', () => this.toggleDashboardPause());
                 document.getElementById('disconnectBtn').addEventListener('click', () => this.disconnect());
                 document.getElementById('startRecordingBtn').addEventListener('click', () => this.startRecordingSession());
                 document.getElementById('stopRecordingBtn').addEventListener('click', () => this.stopRecordingSession());
@@ -1699,6 +1732,8 @@
                 if (this.isRecording) {
                     this.stopRecordingSession();
                 }
+                this.isDashboardPaused = false;
+                this.dashboardPauseReplayWasPlaying = false;
                 await this.stopDemoMode();
                 this.stopReplayMode();
 
@@ -1785,22 +1820,90 @@
                 const statusEl = document.getElementById('status');
                 const connectBtn = document.getElementById('connectBtn');
                 const demoBtn = document.getElementById('demoBtn');
+                const pauseBtn = document.getElementById('pauseBtn');
                 const disconnectBtn = document.getElementById('disconnectBtn');
                 
                 if (connected) {
-                    statusEl.className = 'status connected';
-                    statusEl.textContent = message || `Connected - Receiving data from ${this.portLabel}`;
+                    if (this.isDashboardPaused) {
+                        statusEl.className = 'status paused';
+                        if (this.isReplayMode) {
+                            statusEl.textContent = `Dashboard paused - replay frozen at ${this.formatDurationLabel(this.replayOffsetMs)}.`;
+                        } else if (this.isDemoMode) {
+                            statusEl.textContent = 'Dashboard paused - demo view frozen at the current frame.';
+                        } else {
+                            statusEl.textContent = 'Dashboard paused - live view frozen at the latest sample.';
+                        }
+                    } else {
+                        statusEl.className = 'status connected';
+                        statusEl.textContent = message || `Connected - Receiving data from ${this.portLabel}`;
+                    }
                     connectBtn.disabled = true;
                     demoBtn.disabled = true;
+                    if (pauseBtn) {
+                        pauseBtn.disabled = false;
+                        pauseBtn.textContent = this.isDashboardPaused ? 'Resume Dashboard' : 'Pause Dashboard';
+                        pauseBtn.classList.toggle('is-active', this.isDashboardPaused);
+                    }
                     disconnectBtn.disabled = false;
                 } else {
                     statusEl.className = 'status disconnected';
-                statusEl.textContent = message || 'Disconnected - Use "Connect to Serial" for hardware or "Launch Demo Mode" for preview input';
+                    statusEl.textContent = message || 'Disconnected - Use "Connect to Serial" for hardware or "Launch Demo Mode" for preview input';
                     connectBtn.disabled = !this.webSerialSupported;
                     demoBtn.disabled = false;
+                    if (pauseBtn) {
+                        pauseBtn.disabled = true;
+                        pauseBtn.textContent = 'Pause Dashboard';
+                        pauseBtn.classList.remove('is-active');
+                    }
                     disconnectBtn.disabled = true;
                 }
                 this.updateSessionControls();
+            }
+
+            toggleDashboardPause() {
+                if (!this.isConnected) {
+                    return;
+                }
+
+                if (this.isDashboardPaused) {
+                    this.resumeDashboardFreeze();
+                } else {
+                    this.pauseDashboardFreeze();
+                }
+            }
+
+            pauseDashboardFreeze() {
+                if (!this.isConnected || this.isDashboardPaused) {
+                    return;
+                }
+
+                this.dashboardPauseReplayWasPlaying = this.isReplayMode && this.isReplayPlaying;
+                if (this.dashboardPauseReplayWasPlaying) {
+                    this.stopReplayTimer();
+                }
+
+                this.isDashboardPaused = true;
+                this.recordBehaviorEvent('Dashboard freeze engaged.');
+                this.updateConnectionStatus(true);
+            }
+
+            resumeDashboardFreeze() {
+                if (!this.isDashboardPaused) {
+                    return;
+                }
+
+                const shouldResumeReplay = this.dashboardPauseReplayWasPlaying && this.isReplayMode;
+                this.isDashboardPaused = false;
+                this.dashboardPauseReplayWasPlaying = false;
+
+                if (shouldResumeReplay) {
+                    this.beginReplayTimer();
+                } else {
+                    this.updateConnectionStatus(true);
+                }
+
+                this.recordBehaviorEvent('Dashboard freeze released.');
+                this.updateConnectionStatus(true);
             }
 
             consumeIncomingLine(line, options = {}) {
@@ -1809,7 +1912,7 @@
                     record = true
                 } = options;
 
-                if (!line) {
+                if (!line || this.isDashboardPaused) {
                     return;
                 }
 
@@ -2174,6 +2277,9 @@
                 const scriptedFrames = this.buildDemoFrames();
                 const emitNextFrame = () => {
                     if (!this.isDemoMode || !this.isConnected) {
+                        return;
+                    }
+                    if (this.isDashboardPaused) {
                         return;
                     }
 
@@ -4753,7 +4859,9 @@
 
             startAnimation() {
                 const animate = () => {
-                    this.draw();
+                    if (!this.isDashboardPaused) {
+                        this.draw();
+                    }
                     requestAnimationFrame(animate);
                 };
                 animate();
