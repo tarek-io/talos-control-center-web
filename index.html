@@ -680,19 +680,13 @@
             top: 2px;
             bottom: 2px;
             width: 2px;
-            transform: translateX(-50%);
             pointer-events: none;
             z-index: 4;
-        }
-
-        .command-threshold-guide-line {
-            width: 100%;
-            height: 100%;
             border-radius: 999px;
             background: rgba(124, 45, 18, 0.84);
         }
 
-        .command-threshold-guide.is-off .command-threshold-guide-line {
+        .command-threshold-guide.is-off {
             background: rgba(120, 53, 15, 0.56);
         }
 
@@ -1322,18 +1316,10 @@
                             </div>
                         <div class="command-track-wrap">
                             <div class="command-track">
-                                <div id="commandThresholdOpenOff" class="command-threshold-guide is-off" style="left: 32%;">
-                                    <span class="command-threshold-guide-line"></span>
-                                </div>
-                                <div id="commandThresholdOpenOn" class="command-threshold-guide" style="left: 28%;">
-                                    <span class="command-threshold-guide-line"></span>
-                                </div>
-                                <div id="commandThresholdCloseOff" class="command-threshold-guide is-off" style="left: 68%;">
-                                    <span class="command-threshold-guide-line"></span>
-                                </div>
-                                <div id="commandThresholdCloseOn" class="command-threshold-guide" style="left: 72%;">
-                                    <span class="command-threshold-guide-line"></span>
-                                </div>
+                                <div id="commandThresholdOpenOff" class="command-threshold-guide is-off" style="left: calc(32% - 1px);"></div>
+                                <div id="commandThresholdOpenOn" class="command-threshold-guide" style="left: calc(28% - 1px);"></div>
+                                <div id="commandThresholdCloseOff" class="command-threshold-guide is-off" style="left: calc(68% - 1px);"></div>
+                                <div id="commandThresholdCloseOn" class="command-threshold-guide" style="left: calc(72% - 1px);"></div>
                                 <div id="commandFillOpen" class="command-fill command-fill-open" style="left: 50%; width: 0%;"></div>
                                 <div id="commandFillClose" class="command-fill command-fill-close" style="left: 50%; width: 0%;"></div>
                                 <div class="command-center-line"></div>
@@ -3625,10 +3611,10 @@
                 closeFillEl.style.left = '50%';
                 closeFillEl.style.opacity = displayState === 'close' ? '1' : (displayState === 'neutral' ? '0.75' : '0.45');
 
-                thresholdOpenOffEl.style.left = `${50 - releaseThreshold}%`;
-                thresholdOpenOnEl.style.left = `${50 - activationThreshold}%`;
-                thresholdCloseOffEl.style.left = `${50 + releaseThreshold}%`;
-                thresholdCloseOnEl.style.left = `${50 + activationThreshold}%`;
+                thresholdOpenOffEl.style.left = `calc(${50 - releaseThreshold}% - 1px)`;
+                thresholdOpenOnEl.style.left = `calc(${50 - activationThreshold}% - 1px)`;
+                thresholdCloseOffEl.style.left = `calc(${50 + releaseThreshold}% - 1px)`;
+                thresholdCloseOnEl.style.left = `calc(${50 + activationThreshold}% - 1px)`;
                 thresholdOpenOffLabelEl.style.left = `${50 - releaseThreshold}%`;
                 thresholdOpenLabelEl.style.left = `${50 - activationThreshold}%`;
                 thresholdCloseOffLabelEl.style.left = `${50 + releaseThreshold}%`;
