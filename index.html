@@ -883,20 +883,18 @@
 
         .adaptive-finger-grid {
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
             gap: 10px;
         }
 
         .adaptive-finger-card {
             display: grid;
-            grid-template-columns: 74px minmax(0, 1fr);
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
+            gap: 8px;
+            padding: 10px;
             border-radius: 14px;
             background: rgba(255, 255, 255, 0.9);
             border: 1px solid rgba(26, 42, 37, 0.08);
-            min-height: 0;
+            min-height: 102px;
             transition: border-color 140ms ease, transform 140ms ease, box-shadow 140ms ease;
         }
 
@@ -906,31 +904,25 @@
             transform: translateY(-1px);
         }
 
-        .adaptive-finger-identity {
-            display: grid;
-            gap: 6px;
-            justify-items: start;
-            align-content: center;
+        .adaptive-finger-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
         }
 
         .adaptive-finger-short {
             color: var(--ink);
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 800;
             letter-spacing: 0.12em;
             text-transform: uppercase;
-            padding: 3px 7px;
-            border-radius: 999px;
-            background: rgba(26, 42, 37, 0.06);
-            border: 1px solid rgba(26, 42, 37, 0.08);
         }
 
-        .adaptive-finger-status {
+        .adaptive-finger-percent {
             color: var(--muted);
-            font-size: 10px;
+            font-size: 12px;
             font-weight: 700;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
         }
 
         .adaptive-finger-pad {
@@ -966,51 +958,45 @@
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.24);
         }
 
-        .adaptive-finger-metric {
-            display: grid;
-            gap: 4px;
-        }
-
-        .adaptive-finger-metrics {
-            display: grid;
-            gap: 10px;
-            min-width: 0;
-        }
-
-        .adaptive-finger-metric-head {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .adaptive-finger-metric-label {
+        .adaptive-finger-name {
             color: var(--muted);
-            font-size: 10px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .adaptive-response-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .adaptive-response-card {
+            padding: 12px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.9);
+            border: 1px solid rgba(26, 42, 37, 0.08);
+        }
+
+        .adaptive-response-card.lead-card {
+            grid-column: 1 / -1;
+        }
+
+        .adaptive-response-label {
+            margin: 0 0 4px 0;
+            color: var(--muted);
+            font-size: 11px;
             font-weight: 700;
             letter-spacing: 0.12em;
             text-transform: uppercase;
         }
 
-        .adaptive-finger-metric-value {
+        .adaptive-response-value {
+            margin: 0;
             color: var(--ink);
-            font-size: 11px;
-            font-weight: 700;
-        }
-
-        .adaptive-finger-track.response-track {
-            background: rgba(15, 118, 110, 0.08);
-            border-color: rgba(15, 118, 110, 0.12);
-        }
-
-        .adaptive-finger-fill.response-fill {
-            background: linear-gradient(90deg, rgba(34, 197, 94, 0.84), rgba(21, 128, 61, 0.94));
-        }
-
-        .adaptive-finger-name {
-            color: var(--muted);
-            font-size: 11px;
-            font-weight: 700;
+            font-family: var(--font-display);
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: -0.03em;
         }
 
         .adaptive-metric-value {
@@ -1213,7 +1199,8 @@
                 grid-template-columns: 1fr;
             }
 
-            .adaptive-finger-grid {
+            .adaptive-finger-grid,
+            .adaptive-response-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -1416,10 +1403,32 @@
 
                             <div class="adaptive-section">
                                 <div class="adaptive-section-header">
-                                    <h4 class="adaptive-section-title">Finger Response Map</h4>
+                                    <h4 class="adaptive-section-title">Fingertip Sensing</h4>
                                     <span id="adaptivePattern" class="adaptive-section-note">No active fingers</span>
                                 </div>
                                 <div id="adaptiveFingerGrid" class="adaptive-finger-grid"></div>
+                            </div>
+
+                            <div class="adaptive-section">
+                                <div class="adaptive-section-header">
+                                    <h4 class="adaptive-section-title">Controller Response</h4>
+                                    <span id="adaptiveResponseMode" class="adaptive-section-note">Idle response</span>
+                                </div>
+
+                                <div class="adaptive-response-grid">
+                                    <div class="adaptive-response-card">
+                                        <p class="adaptive-response-label">Support Bias</p>
+                                        <p id="adaptiveHoldBias" class="adaptive-response-value">0%</p>
+                                    </div>
+                                    <div class="adaptive-response-card">
+                                        <p class="adaptive-response-label">Slip Guard</p>
+                                        <p id="adaptiveSlipGuard" class="adaptive-response-value">Standby</p>
+                                    </div>
+                                    <div class="adaptive-response-card lead-card">
+                                        <p class="adaptive-response-label">Lead Fingers</p>
+                                        <p id="adaptiveLeadFingers" class="adaptive-response-value">None</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -3598,9 +3607,14 @@
                 const summaryEl = document.getElementById('adaptiveSummary');
                 const patternEl = document.getElementById('adaptivePattern');
                 const fingerGridEl = document.getElementById('adaptiveFingerGrid');
+                const responseModeEl = document.getElementById('adaptiveResponseMode');
+                const holdBiasEl = document.getElementById('adaptiveHoldBias');
+                const slipGuardEl = document.getElementById('adaptiveSlipGuard');
+                const leadFingersEl = document.getElementById('adaptiveLeadFingers');
 
                 if (!stateEl || !badgeEl || !contactsEl || !phaseEl || !summaryEl ||
-                    !patternEl || !fingerGridEl) {
+                    !patternEl || !fingerGridEl || !responseModeEl || !holdBiasEl ||
+                    !slipGuardEl || !leadFingersEl) {
                     return;
                 }
 
@@ -3611,35 +3625,22 @@
                 phaseEl.textContent = panelModel.phaseLabel;
                 summaryEl.textContent = panelModel.summary;
                 patternEl.textContent = panelModel.patternLabel;
+                responseModeEl.textContent = panelModel.responseMode;
+                holdBiasEl.textContent = `${panelModel.assistBias}%`;
+                slipGuardEl.textContent = panelModel.slipGuard;
+                leadFingersEl.textContent = panelModel.leadFingers;
 
                 fingerGridEl.innerHTML = panelModel.fingerProfiles.map((finger) => `
                     <div class="adaptive-finger-card${finger.active ? ' is-active' : ''}">
-                        <div class="adaptive-finger-identity">
+                        <div class="adaptive-finger-top">
                             <span class="adaptive-finger-short">${finger.short}</span>
-                            <span class="adaptive-finger-status">${finger.active ? 'Active' : 'Idle'}</span>
-                            <div class="adaptive-finger-name">${finger.name}</div>
-                            <div class="adaptive-finger-pad"></div>
+                            <span class="adaptive-finger-percent">${finger.pressure}%</span>
                         </div>
-                        <div class="adaptive-finger-metrics">
-                            <div class="adaptive-finger-metric">
-                                <div class="adaptive-finger-metric-head">
-                                    <span class="adaptive-finger-metric-label">Touch</span>
-                                    <span class="adaptive-finger-metric-value">${finger.pressure}%</span>
-                                </div>
-                                <div class="adaptive-finger-track">
-                                    <div class="adaptive-finger-fill" style="width: ${finger.pressure}%;"></div>
-                                </div>
-                            </div>
-                            <div class="adaptive-finger-metric">
-                                <div class="adaptive-finger-metric-head">
-                                    <span class="adaptive-finger-metric-label">Support</span>
-                                    <span class="adaptive-finger-metric-value">${finger.support}%</span>
-                                </div>
-                                <div class="adaptive-finger-track response-track">
-                                    <div class="adaptive-finger-fill response-fill" style="width: ${finger.support}%;"></div>
-                                </div>
-                            </div>
+                        <div class="adaptive-finger-pad"></div>
+                        <div class="adaptive-finger-track">
+                            <div class="adaptive-finger-fill" style="width: ${finger.pressure}%;"></div>
                         </div>
+                        <div class="adaptive-finger-name">${finger.name}</div>
                     </div>
                 `).join('');
 
@@ -3666,6 +3667,13 @@
                     holding: 'Holding',
                     slip: 'Slip Correction',
                     adjusting: 'Adjusting'
+                };
+                const responseMap = {
+                    inactive: 'Idle response',
+                    contact: 'Contact moderation',
+                    holding: 'Hold stabilization',
+                    slip: 'Slip correction',
+                    adjusting: 'Force redistribution'
                 };
                 const fingerTemplates = {
                     'open-hand': { thumb: 0.22, index: 0.22, middle: 0.2, ring: 0.18, little: 0.16 },
@@ -3697,13 +3705,6 @@
                     adjusting: 0.82
                 };
                 const tactileScale = tactileScaleMap[tactileMode] ?? 0;
-                const supportBaseMap = {
-                    inactive: 0,
-                    contact: assist * 0.36,
-                    holding: assist * 0.62,
-                    slip: assist * 0.82,
-                    adjusting: assist * 0.54
-                };
                 const fingerProfiles = fingerOrder.map((finger) => {
                     const weight = template[finger.key] ?? 0.12;
                     const active = activeKeys.includes(finger.key);
@@ -3716,30 +3717,34 @@
                             )
                         )
                         : 0;
-                    const support = active
-                        ? Math.max(
-                            0,
-                            Math.min(
-                                100,
-                                Math.round((supportBaseMap[tactileMode] ?? 0) * (0.42 + (weight * 0.72)))
-                            )
-                        )
-                        : 0;
                     return {
                         ...finger,
                         active,
-                        pressure,
-                        support
+                        pressure
                     };
                 });
                 const leadFingers = activeKeys.length > 0
                     ? fingerOrder.filter((finger) => activeKeys.includes(finger.key)).map((finger) => finger.short).join(' / ')
                     : 'None';
+                const assistBiasMap = {
+                    inactive: 0,
+                    contact: Math.round(assist * 0.56),
+                    holding: Math.round(assist * 0.82),
+                    slip: Math.min(100, Math.round((assist * 0.96) + 8)),
+                    adjusting: Math.round(assist * 0.68)
+                };
+                const slipGuardMap = {
+                    inactive: 'Standby',
+                    contact: 'Armed',
+                    holding: 'Ready',
+                    slip: 'Active',
+                    adjusting: 'Watching'
+                };
                 const summaryMap = {
                     inactive: available
-                        ? `${mode.name}: watching for contact.`
+                        ? `Watching ${mode.name} for contact.`
                         : 'Awaiting tactile feedback.',
-                    contact: `${mode.name}: contact detected.`,
+                    contact: `Contact detected in ${mode.name}.`,
                     holding: `${mode.name}: hold stabilized.`,
                     slip: `${mode.name}: slip correction active.`,
                     adjusting: `${mode.name}: load balancing active.`
@@ -3751,6 +3756,10 @@
                     phaseLabel: phaseMap[tactileMode] || 'Idle',
                     summary: summaryMap[tactileMode] || summaryMap.inactive,
                     patternLabel: activeKeys.length > 0 ? `${leadFingers} engaged` : 'No active fingers',
+                    responseMode: responseMap[tactileMode] || 'Idle response',
+                    assistBias: assistBiasMap[tactileMode] ?? 0,
+                    slipGuard: slipGuardMap[tactileMode] || 'Standby',
+                    leadFingers,
                     fingerProfiles
                 };
             }
