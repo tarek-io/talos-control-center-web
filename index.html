@@ -685,25 +685,25 @@
                         accent: '#2563eb',
                         summary: 'Full-hand closing mode for cylindrical or secure object capture. This is the main high-force grasp state.'
                     },
-                    'key-pinch': {
-                        name: 'Key Pinch',
+                    'tripod-grasp': {
+                        name: 'Tripod Grasp',
                         accent: '#d97706',
-                        summary: 'Lateral pinch mode for thin objects such as keys, cards, or edges.'
+                        summary: 'Three-point precision grasp for smaller objects and fine manipulation.'
                     },
-                    hook: {
-                        name: 'Hook',
+                    'key-grasp': {
+                        name: 'Key Grasp',
                         accent: '#16a34a',
-                        summary: 'Carry-oriented hook posture for handles, straps, and suspended loads.'
+                        summary: 'Lateral grasp mode for thin objects such as keys, cards, or edges.'
                     },
                     point: {
                         name: 'Point',
                         accent: '#7c3aed',
                         summary: 'Index-led pointing mode for buttons, interfaces, and precise directional interaction.'
                     },
-                    tripod: {
-                        name: 'Tripod',
+                    'precision-grasp': {
+                        name: 'Precision Grasp',
                         accent: '#be185d',
-                        summary: 'Three-point precision grasp for smaller objects and fine manipulation.'
+                        summary: 'Fine control mode for deliberate, small-object handling beyond the core grasp set.'
                     },
                     'thumbs-up': {
                         name: 'Thumbs Up',
@@ -923,6 +923,9 @@
 
             buildDemoFrames() {
                 return [
+                    ...this.createSwipeScene(2, 220, 280, 640, 280, 38),
+                    ...this.createDemoGestureCue('TWO_FINGER_SWIPE'),
+                    ...this.createIdleScene(10),
                     ...this.createPinchScene(2, 260, 320, 600, 320, 38),
                     ...this.createDemoGestureCue('TWO_FINGER_PINCH'),
                     ...this.createIdleScene(10),
@@ -1240,10 +1243,10 @@
             modeKeyFromGesture(name) {
                 const map = {
                     'TWO_FINGER_SWIPE': 'power-grasp',
-                    'TWO_FINGER_PINCH': 'key-pinch',
-                    'TWO_FINGER_SPREAD': 'hook',
+                    'TWO_FINGER_PINCH': 'tripod-grasp',
+                    'TWO_FINGER_SPREAD': 'key-grasp',
                     'THREE_FINGER_SWIPE': 'point',
-                    'THREE_FINGER_PINCH': 'tripod',
+                    'THREE_FINGER_PINCH': 'precision-grasp',
                     'THREE_FINGER_SPREAD': 'thumbs-up'
                 };
 
