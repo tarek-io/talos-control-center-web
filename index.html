@@ -344,6 +344,15 @@
             overflow-y: auto;
         }
 
+        .behavior-log:empty::before,
+        .gesture-log:empty::before {
+            content: attr(data-empty-text);
+            display: block;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
         .behavior-log li {
             margin-bottom: 6px;
             font-size: 13px;
@@ -882,7 +891,7 @@
                     <button id="clearBehaviorBtn" class="clear-btn">Clear Log</button>
                 </div>
                 <p id="behaviorDetail" class="behavior-detail">Waiting for a mode selection or drive command.</p>
-                <ul id="behaviorLog" class="behavior-log"></ul>
+                        <ul id="behaviorLog" class="behavior-log" data-empty-text="Waiting for control events."></ul>
             </div>
 
             <div class="dashboard-grid">
@@ -904,7 +913,7 @@
                                 <button id="clearGestureBtn" class="clear-btn">Clear Log</button>
                             </div>
                             <div id="gestureCurrent" class="gesture-current">NONE</div>
-                            <ul id="gestureLog" class="gesture-log"></ul>
+                            <ul id="gestureLog" class="gesture-log" data-empty-text="Waiting for gestures."></ul>
                         </div>
 
                         <div class="canvas-container">
