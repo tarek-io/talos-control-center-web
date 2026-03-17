@@ -274,31 +274,6 @@
             pointer-events: none;
         }
 
-        .mode-panel.is-pulsing {
-            animation: modePulse 0.55s ease;
-        }
-
-        @keyframes modePulse {
-            0% {
-                transform: scale(0.992);
-                box-shadow:
-                    0 18px 42px rgba(20, 38, 31, 0.09),
-                    0 0 0 0 rgba(15, 118, 110, 0.18);
-            }
-            55% {
-                transform: scale(1.004);
-                box-shadow:
-                    0 24px 48px rgba(20, 38, 31, 0.11),
-                    0 0 0 12px rgba(15, 118, 110, 0);
-            }
-            100% {
-                transform: scale(1);
-                box-shadow:
-                    0 18px 42px rgba(20, 38, 31, 0.09),
-                    0 0 0 0 rgba(15, 118, 110, 0);
-            }
-        }
-
         .mode-copy-wrap,
         .mode-visual-wrap {
             position: relative;
@@ -329,38 +304,6 @@
             line-height: 1.5;
             color: var(--muted);
             max-width: 480px;
-        }
-
-        .mode-metadata {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 12px;
-            margin-top: 18px;
-        }
-
-        .mode-chip {
-            padding: 12px 14px;
-            border-radius: 16px;
-            background: rgba(255,255,255,0.62);
-            border: 1px solid rgba(26, 42, 37, 0.1);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.48);
-        }
-
-        .mode-chip-label {
-            display: block;
-            margin-bottom: 4px;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: var(--muted);
-        }
-
-        .mode-chip-value {
-            display: block;
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--ink);
         }
 
         .mode-visual-wrap {
@@ -670,9 +613,6 @@
                 min-height: 250px;
             }
 
-            .mode-metadata {
-                grid-template-columns: 1fr;
-            }
         }
     </style>
 </head>
@@ -710,24 +650,6 @@
                     <p class="mode-eyebrow">Current Mode</p>
                     <h2 id="modeName" class="mode-name">Standby</h2>
                     <p id="modeSummary" class="mode-summary">Waiting for the next gesture. Demo mode and live serial both drive this panel, so the controller state can be designed without hardware.</p>
-                    <div class="mode-metadata">
-                        <div class="mode-chip">
-                            <span class="mode-chip-label">Source</span>
-                            <span id="modeSource" class="mode-chip-value">Offline</span>
-                        </div>
-                        <div class="mode-chip">
-                            <span class="mode-chip-label">Lock State</span>
-                            <span id="modeLock" class="mode-chip-value">Unlocked</span>
-                        </div>
-                        <div class="mode-chip">
-                            <span class="mode-chip-label">Trigger Gesture</span>
-                            <span id="modeGesture" class="mode-chip-value">None</span>
-                        </div>
-                        <div class="mode-chip">
-                            <span class="mode-chip-label">Controller State</span>
-                            <span id="modeState" class="mode-chip-value">Awaiting input</span>
-                        </div>
-                    </div>
                 </div>
                 <div class="mode-visual-wrap">
                     <div id="modeStage" class="mode-stage">
@@ -934,7 +856,6 @@
                 this.lastPalmDiagnostics = {
                     palm: null
                 };
-                this.modePulseTimer = null;
                 this.controllerState = {
                     modeKey: 'idle',
                     source: 'Offline',
@@ -1423,31 +1344,15 @@
                 this.resetModePreview();
             }
 
-            renderControllerState(shouldPulse = false) {
+            renderControllerState() {
                 const mode = this.modeCatalog[this.controllerState.modeKey] || this.modeCatalog.idle;
-                const panel = document.getElementById('modePanel');
                 const stage = document.getElementById('modeStage');
 
                 document.getElementById('modeName').textContent = mode.name;
                 document.getElementById('modeSummary').textContent = mode.summary;
-                document.getElementById('modeSource').textContent = this.controllerState.source;
-                document.getElementById('modeLock').textContent = this.controllerState.lockState;
-                document.getElementById('modeGesture').textContent = this.controllerState.lastGesture;
-                document.getElementById('modeState').textContent = this.controllerState.stateLabel;
-
+                const panel = document.getElementById('modePanel');
                 if (panel) {
                     panel.style.setProperty('--mode-accent', mode.accent);
-                    if (shouldPulse) {
-                        panel.classList.remove('is-pulsing');
-                        void panel.offsetWidth;
-                        panel.classList.add('is-pulsing');
-                        if (this.modePulseTimer) {
-                            window.clearTimeout(this.modePulseTimer);
-                        }
-                        this.modePulseTimer = window.setTimeout(() => {
-                            panel.classList.remove('is-pulsing');
-                        }, 650);
-                    }
                 }
 
                 if (stage) {
@@ -1990,7 +1895,7 @@
                 this.controllerState.modeKey = this.modeKeyFromGesture(name);
                 this.controllerState.lastGesture = formattedGesture;
                 this.controllerState.stateLabel = `${this.modeCatalog[this.controllerState.modeKey].name} selected`;
-                this.renderControllerState(true);
+                this.renderControllerState();
 
                 while (logEl.children.length > this.gestureLogMax) {
                     logEl.removeChild(logEl.lastChild);
