@@ -925,10 +925,12 @@
 
             buildDemoFrames() {
                 return [
-                    ...this.createDoubleTapScene(1, 410, 250, 4, 6),
+                    ...this.createDoubleTapScene(1, 410, 250, 6, 10),
+                    ...this.createIdleScene(6),
                     ...this.createDemoGestureCue('DOUBLE_TAP'),
                     ...this.createIdleScene(10),
-                    ...this.createDoubleTapScene(2, 410, 320, 4, 6),
+                    ...this.createDoubleTapScene(2, 410, 320, 6, 10),
+                    ...this.createIdleScene(6),
                     ...this.createDemoGestureCue('TWO_FINGER_DOUBLE_TAP'),
                     ...this.createIdleScene(10),
                     ...this.createSwipeScene(2, 220, 280, 640, 280, 38),
