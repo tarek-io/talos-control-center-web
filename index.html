@@ -304,7 +304,7 @@
         }
 
         .behavior-panel {
-            margin-bottom: 20px;
+            margin-bottom: 0;
         }
 
         .behavior-header {
@@ -349,6 +349,7 @@
             border-radius: var(--radius-lg);
             overflow: hidden;
             margin: 0 auto;
+            max-width: 90%;
             position: relative;
             background: linear-gradient(180deg, rgba(255,255,255,0.76), rgba(240, 246, 242, 0.72));
             padding: 12px;
@@ -373,12 +374,16 @@
 
         .dashboard-main {
             min-width: 0;
+            display: grid;
+            gap: 16px;
+            align-content: start;
         }
 
         .dashboard-side {
             min-width: 0;
             display: grid;
             gap: 16px;
+            align-content: start;
         }
 
         .info-panel {
@@ -437,7 +442,6 @@
         }
 
         .gesture-panel {
-            margin-top: 20px;
             background: var(--panel);
             border: 1px solid var(--border);
             border-radius: var(--radius-lg);
@@ -835,28 +839,28 @@
 
             <div id="status" class="status disconnected">Disconnected - Use "Connect to Serial" for hardware or "Launch Demo Mode" for simulated input</div>
 
-            <div id="modePanel" class="mode-panel">
-                <div class="mode-copy-wrap">
-                    <p class="mode-eyebrow">Current Mode</p>
-                    <h2 id="modeName" class="mode-name">Open Hand</h2>
-                    <p id="modeSummary" class="mode-summary" style="display: none;"></p>
-                </div>
-            </div>
-
-            <div class="stack-panel behavior-panel">
-                <div class="behavior-header">
-                    <div>
-                        <h3 class="stack-title">Behavior Monitor</h3>
-                        <h3 id="behaviorCurrent" class="behavior-current">Standby</h3>
-                    </div>
-                    <button id="clearBehaviorBtn" class="clear-btn">Clear Log</button>
-                </div>
-                <p id="behaviorDetail" class="behavior-detail">Waiting for a mode selection or drive command.</p>
-                <ul id="behaviorLog" class="behavior-log"></ul>
-            </div>
-
             <div class="dashboard-grid">
                 <div class="dashboard-main">
+                    <div id="modePanel" class="mode-panel">
+                        <div class="mode-copy-wrap">
+                            <p class="mode-eyebrow">Current Mode</p>
+                            <h2 id="modeName" class="mode-name">Open Hand</h2>
+                            <p id="modeSummary" class="mode-summary" style="display: none;"></p>
+                        </div>
+                    </div>
+
+                    <div class="stack-panel behavior-panel">
+                        <div class="behavior-header">
+                            <div>
+                                <h3 class="stack-title">Behavior Monitor</h3>
+                                <h3 id="behaviorCurrent" class="behavior-current">Standby</h3>
+                            </div>
+                            <button id="clearBehaviorBtn" class="clear-btn">Clear Log</button>
+                        </div>
+                        <p id="behaviorDetail" class="behavior-detail">Waiting for a mode selection or drive command.</p>
+                        <ul id="behaviorLog" class="behavior-log"></ul>
+                    </div>
+
                     <div class="gesture-panel">
                         <div class="gesture-toolbar">
                             <h3 class="gesture-title">Gesture Detector</h3>
