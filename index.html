@@ -472,7 +472,6 @@
             <div class="controls">
                 <button id="connectBtn" class="connect-btn">Connect to Serial</button>
                 <button id="disconnectBtn" class="disconnect-btn" disabled>Disconnect</button>
-                <button id="clearBtn" class="clear-btn">Clear Trail</button>
             </div>
 
             <div id="status" class="status disconnected">Disconnected - Use "Connect to Serial" for hardware or "Launch Demo Mode" for simulated input</div>
@@ -623,7 +622,6 @@
                 document.getElementById('connectBtn').addEventListener('click', () => this.connect());
                 document.getElementById('demoBtn').addEventListener('click', () => this.connectDemo());
                 document.getElementById('disconnectBtn').addEventListener('click', () => this.disconnect());
-                document.getElementById('clearBtn').addEventListener('click', () => this.clearTrail());
                 const clearGestureBtn = document.getElementById('clearGestureBtn');
                 if (clearGestureBtn) {
                     clearGestureBtn.addEventListener('click', () => this.clearGestureLog());
