@@ -605,7 +605,6 @@
                 this.demoTickMs = 40;
                 this.demoLeadInFrames = 4;
                 this.demoScenePauseFrames = 38;
-                this.demoReleaseFadeMs = 140;
                 this.webSerialSupported = ('serial' in navigator);
                 this.showTrail = true;
                 this.touchHistory1 = [];
@@ -1485,16 +1484,9 @@
                 this.finalizeTwoFingerStroke();
                 this.finalizePrimaryStroke();
                 this.currentFingerCount = 0;
-
-                if (this.isDemoMode) {
-                    this.beginReleaseFade(this.touchHistory1, this.demoReleaseFadeMs);
-                    this.beginReleaseFade(this.touchHistory2, this.demoReleaseFadeMs);
-                    this.beginReleaseFade(this.touchHistory3, this.demoReleaseFadeMs);
-                } else {
-                    this.beginReleaseFade(this.touchHistory1);
-                    this.beginReleaseFade(this.touchHistory2);
-                    this.beginReleaseFade(this.touchHistory3);
-                }
+                this.beginReleaseFade(this.touchHistory1);
+                this.beginReleaseFade(this.touchHistory2);
+                this.beginReleaseFade(this.touchHistory3);
 
                 this.clearTouchInfo();
             }
