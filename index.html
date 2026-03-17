@@ -3888,9 +3888,9 @@
                 const samples = this.timelineSamples;
                 const events = this.timelineEvents;
                 const lanes = [
-                    { labelLines: ['RAW'], key: 'rawSignals', accent: '#334155' },
-                    { labelLines: ['DRIVE'], key: 'driveControl', accent: '#0f766e' },
-                    { labelLines: ['SPEED'], key: 'speedControl', accent: '#d97706' }
+                    { labelLines: ['RAW'], key: 'rawSignals' },
+                    { labelLines: ['DRIVE'], key: 'driveControl' },
+                    { labelLines: ['SPEED'], key: 'speedControl' }
                 ];
                 const margin = { top: 64, right: 24, bottom: 24, left: 230 };
                 const plotWidth = canvas.width - margin.left - margin.right;
@@ -3937,9 +3937,9 @@
                     ctx.lineTo(canvas.width - margin.right, y + laneHeight);
                     ctx.stroke();
 
-                    const badgeWidth = 156;
-                    const badgeHeight = 56;
-                    const badgeX = 22;
+                    const badgeWidth = 132;
+                    const badgeHeight = 52;
+                    const badgeX = 24;
                     const badgeY = y + (laneHeight / 2) - (badgeHeight / 2);
 
                     ctx.save();
@@ -3956,15 +3956,11 @@
                     ctx.lineWidth = 1.2;
                     ctx.stroke();
 
-                    drawRoundedRect(badgeX + 10, badgeY + 10, 8, badgeHeight - 20, 4);
-                    ctx.fillStyle = lane.accent;
-                    ctx.fill();
-
                     ctx.fillStyle = 'rgba(23, 34, 31, 0.92)';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    ctx.font = '700 28px Aptos, Segoe UI Variable, sans-serif';
-                    ctx.fillText(lane.labelLines[0], badgeX + (badgeWidth / 2) + 6, badgeY + (badgeHeight / 2) + 1);
+                    ctx.font = '700 26px Aptos, Segoe UI Variable, sans-serif';
+                    ctx.fillText(lane.labelLines[0], badgeX + (badgeWidth / 2), badgeY + (badgeHeight / 2) + 1);
                 });
 
                 if (samples.length === 0) {
@@ -4139,8 +4135,8 @@
                 drawSeries(raw2, rawLaneIndex, 'rgba(5, 150, 105, 0.94)', 2.6);
                 drawSeries(openDrive, driveLaneIndex, '#3b82f6', 2.4);
                 drawSeries(closeDrive, driveLaneIndex, '#10b981', 2.4);
-                drawSeries(requestedSpeed, speedLaneIndex, '#d97706', 2.8, [12, 8]);
-                drawSeries(speedCaps, speedLaneIndex, 'rgba(17, 24, 39, 0.98)', 3.4, []);
+                drawSeries(requestedSpeed, speedLaneIndex, '#d97706', 2.8, []);
+                drawSeries(speedCaps, speedLaneIndex, 'rgba(17, 24, 39, 0.98)', 3.4, [12, 8]);
 
                 const rawLegendItems = [
                     { label: 'EMG1', color: 'rgba(37, 99, 235, 0.9)', dash: [] },
@@ -4191,8 +4187,8 @@
                 });
 
                 const speedLegendItems = [
-                    { label: 'SPEED', color: '#d97706', dash: [12, 8] },
-                    { label: 'CAP', color: 'rgba(17, 24, 39, 0.98)', dash: [] }
+                    { label: 'SPEED', color: '#d97706', dash: [] },
+                    { label: 'CAP', color: 'rgba(17, 24, 39, 0.98)', dash: [12, 8] }
                 ];
                 let speedLegendX = canvas.width - margin.right - 256;
                 const speedLegendY = margin.top + (laneHeight * speedLaneIndex) + 34;
