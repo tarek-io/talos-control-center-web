@@ -1317,6 +1317,20 @@
                 this.behaviorLogMax = 18;
                 this.demoControlFrames = 150;
                 this.demoReleaseFrames = 108;
+                this.emgActivationThreshold = 18;
+                this.emgDominanceHysteresis = 8;
+                this.commandRiseStep = 4;
+                this.commandFallStep = 6;
+                this.modeSpeedCaps = {
+                    idle: 44,
+                    'open-hand': 44,
+                    'power-grasp': 76,
+                    'key-grasp': 58,
+                    'tripod-grasp': 52,
+                    point: 40,
+                    'thumbs-up': 34
+                };
+                this.syntheticRawTick = 0;
                 this.lastEmgBehaviorKey = '';
                 this.lastTactileBehaviorKey = '';
                 this.modeCatalog = {
@@ -2298,8 +2312,14 @@
             }
 
             makeSyntheticRawFromPercent(percent, offset = 0) {
-                const ripple = (((percent + (offset * 13)) % 7) - 3) * 5;
-                const raw = 2048 + (percent * 16) + ripple;
+                this.syntheticRawTick = (this.syntheticRawTick + 1) % 4096;
+                const phase = this.syntheticRawTick + (offset * 97);
+                const baselineWander = Math.sin(phase * 0.035) * 26;
+                const macroRipple = Math.sin(phase * 0.39) * 34;
+                const microRipple = Math.cos(phase * 0.11) * 12;
+                const burst = ((((phase * 17) % 9) - 4) * 5);
+                const gain = 12.5 + (Math.sin(phase * 0.07) * 1.6);
+                const raw = 2048 + baselineWander + (percent * gain) + macroRipple + microRipple + burst;
                 return Math.max(0, Math.min(4095, raw));
             }
 
@@ -3731,13 +3751,16 @@
                 const lanes = [
                     { labelLines: ['EMG 1', 'raw / filtered'], key: 'emg1' },
                     { labelLines: ['EMG 2', 'raw / filtered'], key: 'emg2' },
-                    { labelLines: ['Derived', 'open / close / speed'], key: 'derivedControl' }
+                    { labelLines: ['Derived', 'logic / target / speed'], key: 'derivedControl' }
                 ];
                 const margin = { top: 42, right: 18, bottom: 18, left: 156 };
                 const plotWidth = canvas.width - margin.left - margin.right;
                 const plotHeight = canvas.height - margin.top - margin.bottom;
                 const laneHeight = plotHeight / lanes.length;
                 const derivedLaneIndex = 2;
+                const threshold = this.emgActivationThreshold;
+                const hysteresis = this.emgDominanceHysteresis;
+                const modeSpeedCap = (modeKey) => this.modeSpeedCaps[modeKey] ?? this.modeSpeedCaps['power-grasp'];
 
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.fillStyle = '#ffffff';
@@ -3804,6 +3827,24 @@
                     ctx.setLineDash([]);
                 };
 
+                const drawHorizontalRule = (laneIndex, value, color, label, dash = [8, 6]) => {
+                    const y = yForPercent(laneIndex, value);
+                    ctx.beginPath();
+                    ctx.setLineDash(dash);
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 1.5;
+                    ctx.moveTo(margin.left, y);
+                    ctx.lineTo(canvas.width - margin.right, y);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+
+                    ctx.fillStyle = color;
+                    ctx.font = '700 12px Aptos, Segoe UI Variable, sans-serif';
+                    ctx.textAlign = 'right';
+                    ctx.textBaseline = 'bottom';
+                    ctx.fillText(label, canvas.width - margin.right - 6, y - 4);
+                };
+
                 const raw1 = samples.map((sample) => (sample.raw1 / 4095) * 100);
                 const raw2 = samples.map((sample) => (sample.raw2 / 4095) * 100);
                 const filtered1 = samples.map((sample) => sample.filtered1);
@@ -3811,6 +3852,48 @@
                 const openDrive = samples.map((sample) => sample.openDrive);
                 const closeDrive = samples.map((sample) => sample.closeDrive);
                 const requestedSpeed = samples.map((sample) => sample.requestedSpeed);
+                const targetSpeed = samples.map((sample) => {
+                    const dominantDrive = sample.state === 'open'
+                        ? sample.openDrive
+                        : sample.state === 'close'
+                            ? sample.closeDrive
+                            : 0;
+                    if (sample.state === 'neutral' || dominantDrive <= threshold) {
+                        return 0;
+                    }
+                    const normalizedDrive = ((dominantDrive - threshold) * 100) / Math.max(1, 100 - threshold);
+                    return Math.round((normalizedDrive * modeSpeedCap(sample.modeKey)) / 100);
+                });
+                const speedCaps = samples.map((sample) => modeSpeedCap(sample.modeKey));
+                const dualActivationStates = samples.map((sample) =>
+                    sample.openDrive >= threshold &&
+                    sample.closeDrive >= threshold &&
+                    Math.abs(sample.openDrive - sample.closeDrive) < hysteresis
+                );
+
+                drawHorizontalRule(0, threshold, 'rgba(180, 83, 9, 0.72)', `thr ${threshold}`);
+                drawHorizontalRule(1, threshold, 'rgba(180, 83, 9, 0.72)', `thr ${threshold}`);
+
+                const derivedLaneTop = margin.top + (laneHeight * derivedLaneIndex);
+                if (sampleCount > 1) {
+                    for (let i = 0; i < sampleCount - 1; i++) {
+                        const x1 = xForIndex(i);
+                        const x2 = xForIndex(i + 1);
+                        let fill = '';
+                        if (dualActivationStates[i]) {
+                            fill = 'rgba(180, 83, 9, 0.09)';
+                        } else if (samples[i].state === 'open') {
+                            fill = 'rgba(59, 130, 246, 0.07)';
+                        } else if (samples[i].state === 'close') {
+                            fill = 'rgba(16, 185, 129, 0.07)';
+                        }
+
+                        if (fill) {
+                            ctx.fillStyle = fill;
+                            ctx.fillRect(x1, derivedLaneTop, Math.max(2, x2 - x1), laneHeight);
+                        }
+                    }
+                }
 
                 this.timelineEvents.forEach((event) => {
                     const x = xForIndex(Math.max(0, Math.min(sampleCount - 1, event.sampleIndex)));
@@ -3844,15 +3927,18 @@
                 drawSeries(filtered2, 1, '#059669', 2.4);
                 drawSeries(openDrive, derivedLaneIndex, '#3b82f6', 2.4);
                 drawSeries(closeDrive, derivedLaneIndex, '#10b981', 2.4);
+                drawSeries(targetSpeed, derivedLaneIndex, '#92400e', 1.8, [7, 5]);
                 drawSeries(requestedSpeed, derivedLaneIndex, '#d97706', 2.8, [12, 8]);
+                drawSeries(speedCaps, derivedLaneIndex, 'rgba(63, 82, 76, 0.55)', 1.3, [3, 6]);
 
-                const derivedLaneTop = margin.top + (laneHeight * derivedLaneIndex);
                 const legendItems = [
                     { label: 'open', color: '#3b82f6', dash: [] },
                     { label: 'close', color: '#10b981', dash: [] },
-                    { label: 'speed', color: '#d97706', dash: [12, 8] }
+                    { label: 'target', color: '#92400e', dash: [7, 5] },
+                    { label: 'speed', color: '#d97706', dash: [12, 8] },
+                    { label: 'cap', color: 'rgba(63, 82, 76, 0.7)', dash: [3, 6] }
                 ];
-                let legendX = canvas.width - margin.right - 238;
+                let legendX = canvas.width - margin.right - 402;
                 const legendY = derivedLaneTop + 24;
                 legendItems.forEach((item) => {
                     ctx.beginPath();
@@ -3869,8 +3955,14 @@
                     ctx.textAlign = 'left';
                     ctx.textBaseline = 'middle';
                     ctx.fillText(item.label, legendX + 32, legendY);
-                    legendX += 78;
+                    legendX += 82;
                 });
+
+                ctx.fillStyle = 'rgba(63, 82, 76, 0.86)';
+                ctx.font = '700 13px Aptos, Segoe UI Variable, sans-serif';
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(`logic: thr ${threshold} / hyst ${hysteresis}`, canvas.width - margin.right - 8, derivedLaneTop + 52);
             }
 
             drawGrid() {
