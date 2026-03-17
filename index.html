@@ -1316,6 +1316,7 @@
                 this.replayAppliedIndex = -1;
                 this.behaviorLogMax = 18;
                 this.demoControlFrames = 150;
+                this.demoReleaseFrames = 108;
                 this.lastEmgBehaviorKey = '';
                 this.lastTactileBehaviorKey = '';
                 this.modeCatalog = {
@@ -1930,10 +1931,19 @@
 
             buildDemoFrames() {
                 const neutralTelemetry = this.buildEmgTelemetryBundle('open-hand', 'neutral', 0, 0, 0);
-                const powerIdleTelemetry = this.buildEmgTelemetryBundle('power-grasp', 'neutral', 0, 0, 0);
-                const keyIdleTelemetry = this.buildEmgTelemetryBundle('key-grasp', 'neutral', 0, 0, 0);
-                const tripodIdleTelemetry = this.buildEmgTelemetryBundle('tripod-grasp', 'neutral', 0, 0, 0);
                 const inactiveTactile = { mode: 'inactive', assist: 0, contacts: 0 };
+                const releaseFrames = this.demoReleaseFrames;
+                const makeDriveFrame = (modeKey, drive, tactileState, events = []) => ({
+                    telemetryBundle: this.buildEmgTelemetryBundle(
+                        modeKey,
+                        drive.commandState,
+                        drive.requestedSpeed,
+                        drive.openDrive,
+                        drive.closeDrive
+                    ),
+                    tactileState,
+                    events
+                });
 
                 return [
                     ...this.withTelemetry(
@@ -1954,26 +1964,50 @@
                             speedGain: 0.82
                         });
                         const driveStartFrame = Math.round(frameCount * 0.24);
-                        return {
-                            telemetryBundle: this.buildEmgTelemetryBundle(
-                                'power-grasp',
-                                drive.commandState,
-                                drive.requestedSpeed,
-                                drive.openDrive,
-                                drive.closeDrive
-                            ),
-                            tactileState: inactiveTactile,
-                            events: [
+                        return makeDriveFrame(
+                            'power-grasp',
+                            drive,
+                            inactiveTactile,
+                            [
                                 ...(frameIndex === 0 ? [{ type: 'mode_switch', value: 'power-grasp' }] : []),
                                 ...(frameIndex === driveStartFrame ? [{ type: 'drive_start', value: 'close' }] : [])
                             ]
-                        };
+                        );
+                    }),
+                    ...this.createControlDriveScene(releaseFrames, (frameIndex, frameCount) => {
+                        const drive = this.demoDriveTelemetry(frameIndex, frameCount, {
+                            direction: 'open',
+                            peakOpen: 58,
+                            supportClose: 5,
+                            peakSpeed: 48,
+                            settle: 0.1,
+                            rampEnd: 0.44,
+                            holdEnd: 0.7,
+                            peakActivity: 0.78,
+                            speedGain: 0.76,
+                            holdDrift: 0.028,
+                            tailFloor: 0.02
+                        });
+                        return makeDriveFrame(
+                            'power-grasp',
+                            drive,
+                            inactiveTactile,
+                            frameIndex === 0
+                                ? [
+                                    { type: 'drive_stop', value: 'close' },
+                                    { type: 'drive_start', value: 'open' }
+                                ]
+                                : []
+                        );
                     }),
                     ...this.withTelemetry(
                         this.createIdleScene(this.demoScenePauseFrames),
-                        powerIdleTelemetry,
+                        neutralTelemetry,
                         inactiveTactile,
-                        [this.makeEventLine('drive_stop', 'close')]
+                        [
+                            this.makeEventLine('drive_stop', 'open'),
+                            this.makeEventLine('mode_switch', 'open-hand')
+                        ]
                     ),
                     ...this.withTelemetry(
                         this.createPinchScene(2, 260, 320, 600, 320, 38),
@@ -2001,26 +2035,58 @@
                                 assist: Math.round(this.lerp(18, 42, Math.min(1, (drive.activity - 0.52) / 0.32))),
                                 contacts: 2
                             };
-                        return {
-                            telemetryBundle: this.buildEmgTelemetryBundle(
-                                'key-grasp',
-                                drive.commandState,
-                                drive.requestedSpeed,
-                                drive.openDrive,
-                                drive.closeDrive
-                            ),
+                        return makeDriveFrame(
+                            'key-grasp',
+                            drive,
                             tactileState,
-                            events: [
+                            [
                                 ...(frameIndex === 0 ? [{ type: 'mode_switch', value: 'key-grasp' }] : []),
                                 ...(frameIndex === driveStartFrame ? [{ type: 'drive_start', value: 'close' }] : [])
                             ]
-                        };
+                        );
+                    }),
+                    ...this.createControlDriveScene(releaseFrames, (frameIndex, frameCount) => {
+                        const drive = this.demoDriveTelemetry(frameIndex, frameCount, {
+                            direction: 'open',
+                            peakOpen: 48,
+                            supportClose: 6,
+                            peakSpeed: 38,
+                            settle: 0.1,
+                            rampEnd: 0.46,
+                            holdEnd: 0.72,
+                            peakActivity: 0.72,
+                            speedGain: 0.74,
+                            holdDrift: 0.024,
+                            tailFloor: 0.02
+                        });
+                        const t = frameCount <= 1 ? 1 : frameIndex / (frameCount - 1);
+                        const tactileState = t < 0.22 && drive.activity > 0.42
+                            ? {
+                                mode: 'contact',
+                                assist: Math.round(this.lerp(20, 10, Math.min(1, t / 0.22))),
+                                contacts: 1
+                            }
+                            : inactiveTactile;
+                        return makeDriveFrame(
+                            'key-grasp',
+                            drive,
+                            tactileState,
+                            frameIndex === 0
+                                ? [
+                                    { type: 'drive_stop', value: 'close' },
+                                    { type: 'drive_start', value: 'open' }
+                                ]
+                                : []
+                        );
                     }),
                     ...this.withTelemetry(
                         this.createIdleScene(this.demoScenePauseFrames),
-                        keyIdleTelemetry,
+                        neutralTelemetry,
                         inactiveTactile,
-                        [this.makeEventLine('drive_stop', 'close')]
+                        [
+                            this.makeEventLine('drive_stop', 'open'),
+                            this.makeEventLine('mode_switch', 'open-hand')
+                        ]
                     ),
                     ...this.withTelemetry(
                         this.createPinchScene(3, 240, 420, 640, 420, 40),
@@ -2055,33 +2121,72 @@
                                 contacts: 3
                             };
                         }
-                        return {
-                            telemetryBundle: this.buildEmgTelemetryBundle(
-                                'tripod-grasp',
-                                drive.commandState,
-                                drive.requestedSpeed,
-                                drive.openDrive,
-                                drive.closeDrive
-                            ),
+                        return makeDriveFrame(
+                            'tripod-grasp',
+                            drive,
                             tactileState,
-                            events: [
+                            [
                                 ...(frameIndex === 0 ? [{ type: 'mode_switch', value: 'tripod-grasp' }] : []),
                                 ...(frameIndex === driveStartFrame ? [{ type: 'drive_start', value: 'close' }] : [])
                             ]
-                        };
+                        );
+                    }),
+                    ...this.createControlDriveScene(releaseFrames, (frameIndex, frameCount) => {
+                        const drive = this.demoDriveTelemetry(frameIndex, frameCount, {
+                            direction: 'open',
+                            peakOpen: 44,
+                            supportClose: 6,
+                            peakSpeed: 34,
+                            settle: 0.12,
+                            rampEnd: 0.48,
+                            holdEnd: 0.72,
+                            peakActivity: 0.7,
+                            speedGain: 0.72,
+                            holdDrift: 0.024,
+                            tailFloor: 0.02
+                        });
+                        const t = frameCount <= 1 ? 1 : frameIndex / (frameCount - 1);
+                        let tactileState = inactiveTactile;
+                        if (t < 0.18 && drive.activity > 0.48) {
+                            tactileState = {
+                                mode: 'holding',
+                                assist: Math.round(this.lerp(42, 24, Math.min(1, t / 0.18))),
+                                contacts: 3
+                            };
+                        } else if (t < 0.34 && drive.activity > 0.28) {
+                            tactileState = {
+                                mode: 'contact',
+                                assist: Math.round(this.lerp(22, 8, Math.min(1, (t - 0.18) / 0.16))),
+                                contacts: 2
+                            };
+                        }
+                        return makeDriveFrame(
+                            'tripod-grasp',
+                            drive,
+                            tactileState,
+                            frameIndex === 0
+                                ? [
+                                    { type: 'drive_stop', value: 'close' },
+                                    { type: 'drive_start', value: 'open' }
+                                ]
+                                : []
+                        );
                     }),
                     ...this.withTelemetry(
                         this.createIdleScene(this.demoScenePauseFrames),
-                        tripodIdleTelemetry,
+                        neutralTelemetry,
                         inactiveTactile,
-                        [this.makeEventLine('drive_stop', 'close')]
+                        [
+                            this.makeEventLine('drive_stop', 'open'),
+                            this.makeEventLine('mode_switch', 'open-hand')
+                        ]
                     ),
                     ...this.withTelemetry(
                         this.createPalmScene(12),
-                        tripodIdleTelemetry,
+                        neutralTelemetry,
                         inactiveTactile
                     ),
-                    ...this.withTelemetry(this.createIdleScene(this.demoScenePauseFrames), tripodIdleTelemetry, inactiveTactile)
+                    ...this.withTelemetry(this.createIdleScene(this.demoScenePauseFrames), neutralTelemetry, inactiveTactile)
                 ];
             }
 
@@ -2119,12 +2224,17 @@
 
             demoDriveTelemetry(frameIndex, frameCount, options = {}) {
                 const t = frameCount <= 1 ? 1 : frameIndex / (frameCount - 1);
+                const direction = String(options.direction || 'close').toLowerCase() === 'open' ? 'open' : 'close';
                 const settle = options.settle ?? 0.16;
                 const rampEnd = options.rampEnd ?? 0.46;
                 const holdEnd = options.holdEnd ?? 0.8;
                 const releaseEnd = options.releaseEnd ?? 1;
-                const peakClose = options.peakClose ?? 72;
-                const supportOpen = options.supportOpen ?? 8;
+                const peakDrive = direction === 'open'
+                    ? (options.peakOpen ?? options.peakDrive ?? 64)
+                    : (options.peakClose ?? options.peakDrive ?? 72);
+                const supportDrive = direction === 'open'
+                    ? (options.supportClose ?? options.supportDrive ?? 6)
+                    : (options.supportOpen ?? options.supportDrive ?? 8);
                 const peakSpeed = options.peakSpeed ?? 60;
                 const peakActivity = options.peakActivity ?? 0.9;
                 const speedGain = options.speedGain ?? 0.82;
@@ -2145,11 +2255,13 @@
                 }
 
                 const modulation = 0.97 + (Math.sin(frameIndex * 0.11) * 0.03);
-                const close = Math.round(this.lerp(0, peakClose, activity * modulation));
-                const open = Math.round(this.lerp(0, supportOpen, activity * 0.92));
+                const dominantDrive = Math.round(this.lerp(0, peakDrive, activity * modulation));
+                const support = Math.round(this.lerp(0, supportDrive, activity * 0.92));
+                const close = direction === 'close' ? dominantDrive : support;
+                const open = direction === 'open' ? dominantDrive : support;
                 const speedResponse = Math.min(1, Math.pow(activity, 1.28) * speedGain + (Math.sin(frameIndex * 0.14) * 0.015));
                 const requestedSpeed = Math.max(0, Math.round(this.lerp(0, peakSpeed, speedResponse)));
-                const commandState = activity > 0.08 ? 'close' : 'neutral';
+                const commandState = activity > 0.08 ? direction : 'neutral';
 
                 return {
                     activity,
