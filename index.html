@@ -339,8 +339,8 @@
             margin: 0;
             padding-left: 18px;
             color: var(--muted);
-            height: 84px;
-            max-height: 84px;
+            height: 104px;
+            max-height: 104px;
             overflow-y: auto;
         }
 
@@ -3685,12 +3685,12 @@
                 };
                 const summaryMap = {
                     inactive: available
-                        ? `Monitoring ${mode.name} for fingertip contact before adaptive support engages.`
-                        : 'Awaiting tactile feedback before adaptive support engages.',
-                    contact: `Early fingertip contact in ${mode.name} is moderating the grasp before a full hold settles in.`,
-                    holding: `Adaptive hold is stabilizing ${mode.name} across the currently loaded fingertips.`,
-                    slip: `Slip correction is biasing support toward the lead fingertips to preserve ${mode.name}.`,
-                    adjusting: `Redistributing fingertip load to settle ${mode.name} without overdriving the grasp.`
+                        ? `Watching ${mode.name} for contact.`
+                        : 'Awaiting tactile feedback.',
+                    contact: `Contact detected in ${mode.name}.`,
+                    holding: `${mode.name} hold stabilized.`,
+                    slip: `${mode.name} slip correction active.`,
+                    adjusting: `${mode.name} load balancing active.`
                 };
                 const responseNoteMap = {
                     inactive: 'No tactile correction is being applied yet; the hand is simply watching for first contact.',
