@@ -1402,12 +1402,14 @@
                     ...this.createDemoGestureCue('TWO_FINGER_SWIPE'),
                     ...this.createControlDriveScene(this.demoControlFrames, (frameIndex, frameCount) => {
                         const drive = this.demoDriveTelemetry(frameIndex, frameCount, {
-                            peakClose: 82,
+                            peakClose: 76,
                             supportOpen: 6,
-                            peakSpeed: 74,
-                            settle: 0.16,
-                            rampEnd: 0.46,
-                            holdEnd: 0.8
+                            peakSpeed: 66,
+                            settle: 0.18,
+                            rampEnd: 0.54,
+                            holdEnd: 0.82,
+                            peakActivity: 0.9,
+                            speedGain: 0.82
                         });
                         return {
                             emgDrive: drive.emgDrive,
@@ -1424,12 +1426,14 @@
                     ...this.createControlDriveScene(this.demoControlFrames, (frameIndex, frameCount) => {
                         const t = frameCount <= 1 ? 1 : frameIndex / (frameCount - 1);
                         const drive = this.demoDriveTelemetry(frameIndex, frameCount, {
-                            peakClose: 60,
+                            peakClose: 56,
                             supportOpen: 10,
-                            peakSpeed: 52,
-                            settle: 0.18,
-                            rampEnd: 0.5,
-                            holdEnd: 0.82
+                            peakSpeed: 46,
+                            settle: 0.2,
+                            rampEnd: 0.56,
+                            holdEnd: 0.84,
+                            peakActivity: 0.88,
+                            speedGain: 0.8
                         });
                         const tactileState = drive.activity < 0.52
                             ? inactiveTactile
@@ -1453,12 +1457,14 @@
                     ...this.createControlDriveScene(this.demoControlFrames, (frameIndex, frameCount) => {
                         const t = frameCount <= 1 ? 1 : frameIndex / (frameCount - 1);
                         const drive = this.demoDriveTelemetry(frameIndex, frameCount, {
-                            peakClose: 54,
+                            peakClose: 50,
                             supportOpen: 8,
-                            peakSpeed: 46,
-                            settle: 0.18,
-                            rampEnd: 0.52,
-                            holdEnd: 0.84
+                            peakSpeed: 40,
+                            settle: 0.2,
+                            rampEnd: 0.58,
+                            holdEnd: 0.86,
+                            peakActivity: 0.86,
+                            speedGain: 0.78
                         });
                         let tactileState = inactiveTactile;
                         if (drive.activity >= 0.38 && t < 0.58) {
@@ -1530,21 +1536,29 @@
                 const peakClose = options.peakClose ?? 72;
                 const supportOpen = options.supportOpen ?? 8;
                 const peakSpeed = options.peakSpeed ?? 60;
+                const peakActivity = options.peakActivity ?? 0.9;
+                const speedGain = options.speedGain ?? 0.82;
+                const holdDrift = options.holdDrift ?? 0.035;
+                const tailFloor = options.tailFloor ?? 0.035;
 
                 let activity = 0;
                 if (t < settle) {
                     activity = 0;
                 } else if (t < rampEnd) {
-                    activity = this.easeInOut((t - settle) / Math.max(0.001, rampEnd - settle));
+                    activity = peakActivity * this.easeInOut((t - settle) / Math.max(0.001, rampEnd - settle));
                 } else if (t < holdEnd) {
-                    activity = 1;
+                    const driftPhase = Math.sin(frameIndex * 0.16) * holdDrift;
+                    activity = Math.max(0, Math.min(1, peakActivity - holdDrift + driftPhase));
                 } else if (t < releaseEnd) {
-                    activity = 1 - this.easeInOut((t - holdEnd) / Math.max(0.001, releaseEnd - holdEnd));
+                    const releaseProgress = this.easeInOut((t - holdEnd) / Math.max(0.001, releaseEnd - holdEnd));
+                    activity = Math.max(0, peakActivity * (1 - releaseProgress) + (tailFloor * (1 - releaseProgress)));
                 }
 
-                const close = Math.round(this.lerp(0, peakClose, activity));
-                const open = Math.round(this.lerp(0, supportOpen, activity));
-                const speed = Math.round(this.lerp(0, peakSpeed, activity));
+                const modulation = 0.97 + (Math.sin(frameIndex * 0.11) * 0.03);
+                const close = Math.round(this.lerp(0, peakClose, activity * modulation));
+                const open = Math.round(this.lerp(0, supportOpen, activity * 0.92));
+                const speedResponse = Math.min(1, Math.pow(activity, 1.28) * speedGain + (Math.sin(frameIndex * 0.14) * 0.015));
+                const speed = Math.max(0, Math.round(this.lerp(0, peakSpeed, speedResponse)));
                 const state = activity > 0.08 ? 'close' : 'neutral';
 
                 return {
