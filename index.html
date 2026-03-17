@@ -2314,14 +2314,18 @@
 
             makeSyntheticRawFromPercent(percent, offset = 0) {
                 this.syntheticRawTick = (this.syntheticRawTick + 1) % 4096;
-                const phase = this.syntheticRawTick + (offset * 97);
-                const baselineWander = Math.sin(phase * 0.035) * 26;
-                const macroRipple = Math.sin(phase * 0.39) * 34;
-                const microRipple = Math.cos(phase * 0.11) * 12;
-                const burst = ((((phase * 17) % 9) - 4) * 5);
-                const gain = 12.5 + (Math.sin(phase * 0.07) * 1.6);
-                const raw = 2048 + baselineWander + (percent * gain) + macroRipple + microRipple + burst;
-                return Math.max(0, Math.min(4095, raw));
+                const phase = this.syntheticRawTick + (offset * 131);
+                const activity = Math.max(0, Math.min(100, percent)) / 100;
+                const baselineWander = Math.sin(phase * 0.023) * 18;
+                const carrier =
+                    Math.sin(phase * 0.74) +
+                    (0.62 * Math.sin((phase * 1.33) + 1.4)) +
+                    (0.34 * Math.cos((phase * 2.17) + 0.55));
+                const pseudoNoise = ((((phase * 29) % 23) - 11) / 11);
+                const envelopeFlutter = Math.sin((phase * 0.17) + offset) * 18;
+                const envelope = 24 + (activity * 210) + envelopeFlutter;
+                const raw = 2048 + baselineWander + (carrier * Math.max(18, envelope)) + (pseudoNoise * 16);
+                return Math.round(Math.max(0, Math.min(4095, raw)));
             }
 
             makeTelemetryLines(telemetryBundle, tactileState) {
@@ -3863,7 +3867,7 @@
                 };
 
                 const rawDisplayCenter = 2048;
-                const rawDisplayGain = 0.2;
+                const rawDisplayGain = 0.07;
                 const normalizeRawSignal = (rawValue) => Math.max(0, Math.min(100, 50 + ((rawValue - rawDisplayCenter) * rawDisplayGain)));
                 const raw1 = displaySamples.map((sample) => normalizeRawSignal(sample.raw1));
                 const raw2 = displaySamples.map((sample) => normalizeRawSignal(sample.raw2));
@@ -3939,8 +3943,8 @@
                     ctx.fillText(shortLabel, x, margin.top - 19);
                 });
 
-                drawSeries(raw1, rawLaneIndex, 'rgba(37, 99, 235, 0.9)', 2.2);
-                drawSeries(raw2, rawLaneIndex, 'rgba(5, 150, 105, 0.9)', 2.2);
+                drawSeries(raw1, rawLaneIndex, 'rgba(37, 99, 235, 0.94)', 2.6);
+                drawSeries(raw2, rawLaneIndex, 'rgba(5, 150, 105, 0.94)', 2.6);
                 drawSeries(openDrive, derivedLaneIndex, '#3b82f6', 2.4);
                 drawSeries(closeDrive, derivedLaneIndex, '#10b981', 2.4);
                 drawSeries(targetSpeed, derivedLaneIndex, '#92400e', 1.8, [7, 5]);
