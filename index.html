@@ -605,6 +605,7 @@
                 this.demoTickMs = 40;
                 this.demoLeadInFrames = 4;
                 this.demoScenePauseFrames = 38;
+                this.demoReleaseFadeMs = 140;
                 this.webSerialSupported = ('serial' in navigator);
                 this.showTrail = true;
                 this.touchHistory1 = [];
@@ -1457,7 +1458,7 @@
                 }
             }
 
-            beginReleaseFade(history) {
+            beginReleaseFade(history, fadeMs = this.releaseFadeMs) {
                 if (history.length === 0) {
                     return;
                 }
@@ -1467,7 +1468,8 @@
                 history.push({
                     ...latest,
                     timestamp: Date.now(),
-                    releaseGhost: true
+                    releaseGhost: true,
+                    releaseFadeMs: fadeMs
                 });
             }
 
@@ -1478,9 +1480,9 @@
                 this.currentFingerCount = 0;
 
                 if (this.isDemoMode) {
-                    this.touchHistory1 = [];
-                    this.touchHistory2 = [];
-                    this.touchHistory3 = [];
+                    this.beginReleaseFade(this.touchHistory1, this.demoReleaseFadeMs);
+                    this.beginReleaseFade(this.touchHistory2, this.demoReleaseFadeMs);
+                    this.beginReleaseFade(this.touchHistory3, this.demoReleaseFadeMs);
                 } else {
                     this.beginReleaseFade(this.touchHistory1);
                     this.beginReleaseFade(this.touchHistory2);
@@ -1870,7 +1872,7 @@
 
                 const now = Date.now();
                 const activeTouches = history.filter((touch) => {
-                    const maxAge = touch.releaseGhost ? this.releaseFadeMs : this.trailMaxAgeMs;
+                    const maxAge = touch.releaseGhost ? (touch.releaseFadeMs || this.releaseFadeMs) : this.trailMaxAgeMs;
                     return (now - touch.timestamp) <= maxAge;
                 });
 
@@ -1882,7 +1884,7 @@
                 for (let i = 0; i < history.length; i++) {
                     const touch = history[i];
                     const age = now - touch.timestamp;
-                    const maxAge = touch.releaseGhost ? this.releaseFadeMs : this.trailMaxAgeMs;
+                    const maxAge = touch.releaseGhost ? (touch.releaseFadeMs || this.releaseFadeMs) : this.trailMaxAgeMs;
 
                     if (age > maxAge) continue;
 
