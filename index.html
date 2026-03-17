@@ -3862,8 +3862,11 @@
                     ctx.fillText(label, canvas.width - margin.right - 6, y - 4);
                 };
 
-                const raw1 = displaySamples.map((sample) => (sample.raw1 / 4095) * 100);
-                const raw2 = displaySamples.map((sample) => (sample.raw2 / 4095) * 100);
+                const rawDisplayCenter = 2048;
+                const rawDisplayGain = 0.2;
+                const normalizeRawSignal = (rawValue) => Math.max(0, Math.min(100, 50 + ((rawValue - rawDisplayCenter) * rawDisplayGain)));
+                const raw1 = displaySamples.map((sample) => normalizeRawSignal(sample.raw1));
+                const raw2 = displaySamples.map((sample) => normalizeRawSignal(sample.raw2));
                 const openDrive = displaySamples.map((sample) => sample.openDrive);
                 const closeDrive = displaySamples.map((sample) => sample.closeDrive);
                 const requestedSpeed = displaySamples.map((sample) => sample.requestedSpeed);
@@ -3886,6 +3889,7 @@
                     Math.abs(sample.openDrive - sample.closeDrive) < hysteresis
                 );
 
+                drawHorizontalRule(rawLaneIndex, 50, 'rgba(63, 82, 76, 0.34)', 'bias', [4, 6]);
                 drawHorizontalRule(derivedLaneIndex, threshold, 'rgba(180, 83, 9, 0.72)', `thr ${threshold}`);
 
                 const derivedLaneTop = margin.top + (laneHeight * derivedLaneIndex);
