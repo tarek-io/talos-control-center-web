@@ -1631,7 +1631,7 @@
                     idle: {
                         name: 'Open Hand',
                         accent: '#0f766e',
-                        summary: ''
+                        summary: 'Default relaxed posture.'
                     },
                     'power-grasp': {
                         name: 'Power Grasp',
@@ -2247,8 +2247,8 @@
                     closeModerate: { peakClose: 46, supportOpen: 24 },
                     closePrecision: { peakClose: 40, supportOpen: 18 }
                 };
-                const neutralTelemetry = () => ({
-                    ...this.buildEmgTelemetryBundle('open-hand', { openPercent: 0, closePercent: 0, activity: 0 }),
+                const neutralTelemetry = (modeKey = 'open-hand') => ({
+                    ...this.buildEmgTelemetryBundle(modeKey, { openPercent: 0, closePercent: 0, activity: 0 }),
                     tactileState: inactiveTactile
                 });
                 const makeDriveFrame = (modeKey, signalProfile, tactileState, events = []) => {
@@ -2301,12 +2301,12 @@
                     }),
                     ...this.withTelemetry(
                         this.createIdleScene(this.demoScenePauseFrames),
-                        neutralTelemetry,
+                        () => neutralTelemetry('power-grasp'),
                         inactiveTactile
                     ),
                     ...this.withTelemetry(
                         this.createPinchScene(2, 260, 320, 600, 320, 38),
-                        neutralTelemetry,
+                        () => neutralTelemetry('power-grasp'),
                         inactiveTactile
                     ),
                     ...this.createDemoGestureCue('TWO_FINGER_PINCH'),
@@ -2360,12 +2360,12 @@
                     }),
                     ...this.withTelemetry(
                         this.createIdleScene(this.demoScenePauseFrames),
-                        neutralTelemetry,
+                        () => neutralTelemetry('key-grasp'),
                         inactiveTactile
                     ),
                     ...this.withTelemetry(
                         this.createPinchScene(3, 240, 420, 640, 420, 40),
-                        neutralTelemetry,
+                        () => neutralTelemetry('key-grasp'),
                         inactiveTactile
                     ),
                     ...this.createDemoGestureCue('THREE_FINGER_PINCH'),
@@ -2433,15 +2433,15 @@
                     }),
                     ...this.withTelemetry(
                         this.createIdleScene(this.demoScenePauseFrames),
-                        neutralTelemetry,
+                        () => neutralTelemetry('tripod-grasp'),
                         inactiveTactile
                     ),
                     ...this.withTelemetry(
                         this.createPalmScene(12),
-                        neutralTelemetry,
+                        () => neutralTelemetry('tripod-grasp'),
                         inactiveTactile
                     ),
-                    ...this.withTelemetry(this.createIdleScene(this.demoScenePauseFrames), neutralTelemetry, inactiveTactile)
+                    ...this.withTelemetry(this.createIdleScene(this.demoScenePauseFrames), () => neutralTelemetry('tripod-grasp'), inactiveTactile)
                 ];
             }
 
