@@ -349,6 +349,12 @@
             font-size: 13px;
         }
 
+        .behavior-log li.latest,
+        .gesture-log li.latest {
+            font-weight: 700;
+            color: var(--ink);
+        }
+
         .canvas-container {
             border: 1px solid var(--border-strong);
             border-radius: var(--radius-lg);
@@ -1942,6 +1948,17 @@
                 while (logEl.children.length > this.behaviorLogMax) {
                     logEl.removeChild(logEl.lastChild);
                 }
+
+                this.markLatestLogItem(logEl);
+            }
+
+            markLatestLogItem(logEl) {
+                if (!logEl) {
+                    return;
+                }
+                Array.from(logEl.children).forEach((child, index) => {
+                    child.classList.toggle('latest', index === 0);
+                });
             }
 
             resetBehaviorTracking() {
@@ -2697,6 +2714,8 @@
                 while (logEl.children.length > this.gestureLogMax) {
                     logEl.removeChild(logEl.lastChild);
                 }
+
+                this.markLatestLogItem(logEl);
             }
 
             drawGrid() {
