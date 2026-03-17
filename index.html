@@ -915,13 +915,14 @@
                     }
                 };
 
-                emitNextFrame();
+                for (let i = 0; i < this.demoLeadInFrames; i++) {
+                    emitNextFrame();
+                }
                 this.demoTimer = window.setInterval(emitNextFrame, this.demoTickMs);
             }
 
             buildDemoFrames() {
                 return [
-                    ...this.createIdleScene(4),
                     ...this.createSwipeScene(2, 220, 280, 640, 280, 38),
                     ...this.createIdleScene(10),
                     ...this.createPinchScene(2, 260, 320, 600, 320, 38),
