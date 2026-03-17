@@ -1333,6 +1333,7 @@
                     'thumbs-up': 34
                 };
                 this.syntheticRawTick = 0;
+                this.syntheticCarrierMeanAbs = 0.72;
                 this.demoEmgBaselineCh1 = 2048;
                 this.demoEmgBaselineCh2 = 2048;
                 this.demoEmgState = null;
@@ -2415,9 +2416,10 @@
                     (0.62 * Math.sin((phase * 1.33) + 1.4)) +
                     (0.34 * Math.cos((phase * 2.17) + 0.55));
                 const pseudoNoise = ((((phase * 29) % 23) - 11) / 11);
-                const envelopeFlutter = Math.sin((phase * 0.17) + offset) * 18;
-                const envelope = 24 + (activity * 210) + envelopeFlutter;
-                const raw = 2048 + baselineWander + (carrier * Math.max(18, envelope)) + (pseudoNoise * 16);
+                const envelopeFlutter = Math.sin((phase * 0.17) + offset) * 40;
+                const desiredEnvelope = activity * this.emgNormalizationMax;
+                const amplitude = 40 + (desiredEnvelope / Math.max(0.01, this.syntheticCarrierMeanAbs)) + envelopeFlutter;
+                const raw = 2048 + baselineWander + (carrier * Math.max(28, amplitude)) + (pseudoNoise * 20);
                 return Math.round(Math.max(0, Math.min(4095, raw)));
             }
 
