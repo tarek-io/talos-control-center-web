@@ -633,10 +633,17 @@
                 this.threeFingerSwipeMaxDurationMs = 1700;
                 this.threeFingerPinchDeltaRaw = 42;
                 this.threeFingerPinchMaxDurationMs = 1600;
+                this.tapMaxDistanceRaw = 24;
+                this.tapMaxDurationMs = 260;
+                this.doubleTapMaxGapMs = 360;
                 this.gestureDominanceRatio = 1.1;
                 this.threeFingerSwipeDominanceRatio = 0.8;
                 this.gestureLogMax = 20;
                 this.currentFingerCount = 0;
+                this.pendingTap = {
+                    fingerCount: 0,
+                    lastTapTs: 0
+                };
                 this.primaryStroke = {
                     active: false,
                     startX: 0,
@@ -685,25 +692,20 @@
                         accent: '#2563eb',
                         summary: 'Full-hand closing mode for cylindrical or secure object capture. This is the main high-force grasp state.'
                     },
-                    'tripod-grasp': {
-                        name: 'Tripod Grasp',
-                        accent: '#d97706',
-                        summary: 'Three-point precision grasp for smaller objects and fine manipulation.'
-                    },
                     'key-grasp': {
                         name: 'Key Grasp',
                         accent: '#16a34a',
                         summary: 'Lateral grasp mode for thin objects such as keys, cards, or edges.'
                     },
+                    'tripod-grasp': {
+                        name: 'Tripod Grasp',
+                        accent: '#d97706',
+                        summary: 'Three-point precision grasp for smaller objects and fine manipulation.'
+                    },
                     point: {
                         name: 'Point',
                         accent: '#7c3aed',
                         summary: 'Index-led pointing mode for buttons, interfaces, and precise directional interaction.'
-                    },
-                    'precision-grasp': {
-                        name: 'Precision Grasp',
-                        accent: '#be185d',
-                        summary: 'Fine control mode for deliberate, small-object handling beyond the core grasp set.'
                     },
                     'thumbs-up': {
                         name: 'Thumbs Up',
@@ -923,23 +925,23 @@
 
             buildDemoFrames() {
                 return [
+                    ...this.createDoubleTapScene(1, 410, 250, 4, 6),
+                    ...this.createDemoGestureCue('DOUBLE_TAP'),
+                    ...this.createIdleScene(10),
+                    ...this.createDoubleTapScene(2, 410, 320, 4, 6),
+                    ...this.createDemoGestureCue('TWO_FINGER_DOUBLE_TAP'),
+                    ...this.createIdleScene(10),
                     ...this.createSwipeScene(2, 220, 280, 640, 280, 38),
                     ...this.createDemoGestureCue('TWO_FINGER_SWIPE'),
                     ...this.createIdleScene(10),
                     ...this.createPinchScene(2, 260, 320, 600, 320, 38),
                     ...this.createDemoGestureCue('TWO_FINGER_PINCH'),
                     ...this.createIdleScene(10),
-                    ...this.createSpreadScene(2, 360, 320, 500, 320, 38),
-                    ...this.createDemoGestureCue('TWO_FINGER_SPREAD'),
-                    ...this.createIdleScene(10),
-                    ...this.createSwipeScene(3, 260, 460, 620, 460, 42),
-                    ...this.createDemoGestureCue('THREE_FINGER_SWIPE'),
-                    ...this.createIdleScene(10),
                     ...this.createPinchScene(3, 240, 420, 640, 420, 40),
                     ...this.createDemoGestureCue('THREE_FINGER_PINCH'),
                     ...this.createIdleScene(10),
-                    ...this.createSpreadScene(3, 360, 430, 510, 430, 40),
-                    ...this.createDemoGestureCue('THREE_FINGER_SPREAD'),
+                    ...this.createSwipeScene(3, 260, 460, 620, 460, 42),
+                    ...this.createDemoGestureCue('THREE_FINGER_SWIPE'),
                     ...this.createIdleScene(10),
                     ...this.createPalmScene(12)
                 ];
@@ -972,6 +974,41 @@
                         contacts: []
                     }));
                 }
+                return frames;
+            }
+
+            createDoubleTapScene(fingerCount, centerX, centerY, tapFrames, gapFrames) {
+                const frames = [];
+                const fingerGap = fingerCount === 2 ? 108 : 0;
+                const startOffset = -((fingerCount - 1) * fingerGap) / 2;
+
+                const buildContacts = (frameIndex) => {
+                    const contacts = [];
+                    for (let finger = 0; finger < fingerCount; finger++) {
+                        contacts.push({
+                            x: centerX + startOffset + (finger * fingerGap),
+                            y: centerY + Math.sin(frameIndex + finger) * 4,
+                            strength: this.demoStrength(12, finger * 2, frameIndex)
+                        });
+                    }
+                    return contacts;
+                };
+
+                for (let tapIndex = 0; tapIndex < 2; tapIndex++) {
+                    for (let frame = 0; frame < tapFrames; frame++) {
+                        frames.push(this.makeFrame({
+                            fingers: fingerCount,
+                            area: fingerCount === 1 ? 6 : 8,
+                            palm: 0,
+                            contacts: buildContacts(frame)
+                        }));
+                    }
+
+                    if (tapIndex === 0) {
+                        frames.push(...this.createIdleScene(gapFrames));
+                    }
+                }
+
                 return frames;
             }
 
@@ -1242,12 +1279,12 @@
 
             modeKeyFromGesture(name) {
                 const map = {
+                    'DOUBLE_TAP': 'point',
+                    'TWO_FINGER_DOUBLE_TAP': 'thumbs-up',
                     'TWO_FINGER_SWIPE': 'power-grasp',
-                    'TWO_FINGER_PINCH': 'tripod-grasp',
-                    'TWO_FINGER_SPREAD': 'key-grasp',
-                    'THREE_FINGER_SWIPE': 'point',
-                    'THREE_FINGER_PINCH': 'precision-grasp',
-                    'THREE_FINGER_SPREAD': 'thumbs-up'
+                    'TWO_FINGER_PINCH': 'key-grasp',
+                    'THREE_FINGER_PINCH': 'tripod-grasp',
+                    'THREE_FINGER_SWIPE': 'thumbs-up'
                 };
 
                 return map[name] || 'idle';
@@ -1606,6 +1643,15 @@
             finalizePrimaryStroke() {
                 if (!this.primaryStroke.active) return;
 
+                const dx = this.primaryStroke.lastX - this.primaryStroke.startX;
+                const dy = this.primaryStroke.lastY - this.primaryStroke.startY;
+                const distance = Math.hypot(dx, dy);
+                const duration = this.primaryStroke.lastTs - this.primaryStroke.startTs;
+
+                if (distance <= this.tapMaxDistanceRaw && duration <= this.tapMaxDurationMs) {
+                    this.registerTapCandidate(1, duration);
+                }
+
                 this.primaryStroke.active = false;
             }
 
@@ -1655,13 +1701,21 @@
                 if (spreadDistance >= this.twoFingerPinchDeltaRaw &&
                     duration <= this.twoFingerPinchMaxDurationMs &&
                     spreadDistance >= swipeDistance * this.gestureDominanceRatio) {
-                    this.emitGesture(spreadDelta < 0 ? 'TWO_FINGER_PINCH' : 'TWO_FINGER_SPREAD',
-                                     spreadDistance,
-                                     duration);
+                    if (spreadDelta < 0) {
+                        this.pendingTap.fingerCount = 0;
+                        this.pendingTap.lastTapTs = 0;
+                        this.emitGesture('TWO_FINGER_PINCH', spreadDistance, duration);
+                    }
                 } else if (swipeDistance >= this.twoFingerSwipeMinDistanceRaw &&
                            duration <= this.twoFingerSwipeMaxDurationMs &&
                            swipeDistance >= spreadDistance * this.gestureDominanceRatio) {
+                    this.pendingTap.fingerCount = 0;
+                    this.pendingTap.lastTapTs = 0;
                     this.emitGesture('TWO_FINGER_SWIPE', swipeDistance, duration);
+                } else if (swipeDistance <= this.tapMaxDistanceRaw &&
+                           spreadDistance <= this.tapMaxDistanceRaw &&
+                           duration <= this.tapMaxDurationMs) {
+                    this.registerTapCandidate(2, duration);
                 }
 
                 this.twoFingerStroke.active = false;
@@ -1705,23 +1759,44 @@
                 if (spreadDistance >= this.threeFingerPinchDeltaRaw &&
                     duration <= this.threeFingerPinchMaxDurationMs &&
                     spreadDistance >= swipeDistance * this.gestureDominanceRatio) {
-                    this.emitGesture(spreadDelta < 0 ? 'THREE_FINGER_PINCH' : 'THREE_FINGER_SPREAD',
-                                     spreadDistance,
-                                     duration);
+                    if (spreadDelta < 0) {
+                        this.pendingTap.fingerCount = 0;
+                        this.pendingTap.lastTapTs = 0;
+                        this.emitGesture('THREE_FINGER_PINCH', spreadDistance, duration);
+                    }
                 } else if (swipeDistance >= this.threeFingerSwipeMinDistanceRaw &&
                            duration <= this.threeFingerSwipeMaxDurationMs &&
                            swipeDistance >= spreadDistance * this.threeFingerSwipeDominanceRatio) {
+                    this.pendingTap.fingerCount = 0;
+                    this.pendingTap.lastTapTs = 0;
                     this.emitGesture('THREE_FINGER_SWIPE', swipeDistance, duration);
                 }
 
                 this.threeFingerStroke.active = false;
             }
 
-            emitGesture(name, distance, duration) {
+            registerTapCandidate(fingerCount, duration) {
+                const now = Date.now();
+                const withinWindow = this.pendingTap.fingerCount === fingerCount &&
+                    (now - this.pendingTap.lastTapTs) <= this.doubleTapMaxGapMs;
+
+                if (withinWindow) {
+                    this.pendingTap.fingerCount = 0;
+                    this.pendingTap.lastTapTs = 0;
+                    const gestureName = fingerCount === 1 ? 'DOUBLE_TAP' : 'TWO_FINGER_DOUBLE_TAP';
+                    this.emitGesture(gestureName, 0, duration, 'double tap');
+                    return;
+                }
+
+                this.pendingTap.fingerCount = fingerCount;
+                this.pendingTap.lastTapTs = now;
+            }
+
+            emitGesture(name, distance, duration, detailOverride = null) {
                 const currentEl = document.getElementById('gestureCurrent');
                 const logEl = document.getElementById('gestureLog');
                 const ts = new Date().toLocaleTimeString();
-                const detail = `d=${Math.round(distance)} t=${Math.round(duration)}ms`;
+                const detail = detailOverride || `d=${Math.round(distance)} t=${Math.round(duration)}ms`;
 
                 this.applyGestureToUI(currentEl, logEl, ts, name, detail);
             }
@@ -1843,6 +1918,8 @@
                 this.primaryStroke.active = false;
                 this.twoFingerStroke.active = false;
                 this.threeFingerStroke.active = false;
+                this.pendingTap.fingerCount = 0;
+                this.pendingTap.lastTapTs = 0;
                 this.currentFingerCount = 0;
                 this.clearTouchInfo();
             }
