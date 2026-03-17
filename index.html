@@ -3871,7 +3871,7 @@
                 const lanes = [
                     { labelLines: ['RAW', 'EMG1 / EMG2'], key: 'rawSignals' },
                     { labelLines: ['DRIVE', 'OPEN / CLOSE'], key: 'driveControl' },
-                    { labelLines: ['SPEED', 'TARGET / REQUESTED'], key: 'speedControl' }
+                    { labelLines: ['SPEED', 'SMOOTH / CAP'], key: 'speedControl' }
                 ];
                 const margin = { top: 64, right: 24, bottom: 24, left: 230 };
                 const plotWidth = canvas.width - margin.left - margin.right;
@@ -3882,8 +3882,8 @@
                 const speedLaneIndex = 2;
                 const threshold = this.emgActivationThreshold;
                 const hysteresis = this.emgDominanceHysteresis;
-                const driveDisplayMax = 80;
-                const speedDisplayMax = 80;
+                const driveDisplayMax = 72;
+                const speedDisplayMax = 72;
                 const modeSpeedCap = (modeKey) => this.modeSpeedCaps[modeKey] ?? this.modeSpeedCaps['power-grasp'];
 
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -3997,18 +3997,6 @@
                 const openDrive = displaySamples.map((sample) => sample.openDrive);
                 const closeDrive = displaySamples.map((sample) => sample.closeDrive);
                 const requestedSpeed = displaySamples.map((sample) => sample.requestedSpeed);
-                const targetSpeed = displaySamples.map((sample) => {
-                    const dominantDrive = sample.state === 'open'
-                        ? sample.openDrive
-                        : sample.state === 'close'
-                            ? sample.closeDrive
-                            : 0;
-                    if (sample.state === 'neutral' || dominantDrive <= threshold) {
-                        return 0;
-                    }
-                    const normalizedDrive = ((dominantDrive - threshold) * 100) / Math.max(1, 100 - threshold);
-                    return Math.round((normalizedDrive * modeSpeedCap(sample.modeKey)) / 100);
-                });
                 const speedCaps = displaySamples.map((sample) => modeSpeedCap(sample.modeKey));
                 const dualActivationStates = displaySamples.map((sample) =>
                     sample.openDrive >= threshold &&
@@ -4052,7 +4040,7 @@
                     }[event.type] || event.type;
 
                     ctx.strokeStyle = 'rgba(180, 83, 9, 0.34)';
-                    ctx.lineWidth = 1;
+                    ctx.lineWidth = 2.2;
                     ctx.beginPath();
                     ctx.moveTo(x, margin.top);
                     ctx.lineTo(x, canvas.height - margin.bottom);
@@ -4060,6 +4048,9 @@
 
                     ctx.fillStyle = 'rgba(255, 247, 237, 0.98)';
                     ctx.fillRect(x - 44, margin.top - 40, 88, 30);
+                    ctx.strokeStyle = 'rgba(124, 45, 18, 0.58)';
+                    ctx.lineWidth = 1.8;
+                    ctx.strokeRect(x - 44, margin.top - 40, 88, 30);
                     ctx.fillStyle = '#7c2d12';
                     ctx.font = '700 18px Aptos, Segoe UI Variable, sans-serif';
                     ctx.textAlign = 'center';
@@ -4071,9 +4062,8 @@
                 drawSeries(raw2, rawLaneIndex, 'rgba(5, 150, 105, 0.94)', 2.6);
                 drawSeries(openDrive, driveLaneIndex, '#3b82f6', 2.4);
                 drawSeries(closeDrive, driveLaneIndex, '#10b981', 2.4);
-                drawSeries(targetSpeed, speedLaneIndex, '#92400e', 1.8, [7, 5]);
                 drawSeries(requestedSpeed, speedLaneIndex, '#d97706', 2.8, [12, 8]);
-                drawSeries(speedCaps, speedLaneIndex, 'rgba(63, 82, 76, 0.55)', 1.3, [3, 6]);
+                drawSeries(speedCaps, speedLaneIndex, 'rgba(31, 41, 55, 0.96)', 2.6, [10, 6]);
 
                 const rawLegendItems = [
                     { label: 'EMG1', color: 'rgba(37, 99, 235, 0.9)', dash: [] },
@@ -4124,11 +4114,10 @@
                 });
 
                 const speedLegendItems = [
-                    { label: 'TARGET', color: '#92400e', dash: [7, 5] },
                     { label: 'SPEED', color: '#d97706', dash: [12, 8] },
-                    { label: 'CAP', color: 'rgba(63, 82, 76, 0.7)', dash: [3, 6] }
+                    { label: 'CAP', color: 'rgba(31, 41, 55, 0.96)', dash: [10, 6] }
                 ];
-                let speedLegendX = canvas.width - margin.right - 388;
+                let speedLegendX = canvas.width - margin.right - 256;
                 const speedLegendY = margin.top + (laneHeight * speedLaneIndex) + 34;
                 speedLegendItems.forEach((item) => {
                     ctx.beginPath();
