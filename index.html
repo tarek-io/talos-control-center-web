@@ -3872,7 +3872,7 @@
                     { labelLines: ['Raw', 'emg1 / emg2'], key: 'rawSignals' },
                     { labelLines: ['Derived', 'drive / target / speed'], key: 'derivedControl' }
                 ];
-                const margin = { top: 42, right: 18, bottom: 18, left: 156 };
+                const margin = { top: 58, right: 24, bottom: 24, left: 182 };
                 const plotWidth = canvas.width - margin.left - margin.right;
                 const plotHeight = canvas.height - margin.top - margin.bottom;
                 const laneHeight = plotHeight / lanes.length;
@@ -3903,16 +3903,16 @@
                     ctx.fillStyle = 'rgba(23, 34, 31, 0.9)';
                     ctx.textAlign = 'left';
                     ctx.textBaseline = 'middle';
-                    ctx.font = '700 19px Aptos, Segoe UI Variable, sans-serif';
-                    ctx.fillText(lane.labelLines[0], 14, y + (laneHeight / 2) - 11);
-                    ctx.font = '700 15px Aptos, Segoe UI Variable, sans-serif';
+                    ctx.font = '700 25px Aptos, Segoe UI Variable, sans-serif';
+                    ctx.fillText(lane.labelLines[0], 16, y + (laneHeight / 2) - 15);
+                    ctx.font = '700 18px Aptos, Segoe UI Variable, sans-serif';
                     ctx.fillStyle = 'rgba(63, 82, 76, 0.88)';
-                    ctx.fillText(lane.labelLines[1], 14, y + (laneHeight / 2) + 13);
+                    ctx.fillText(lane.labelLines[1], 16, y + (laneHeight / 2) + 17);
                 });
 
                 if (samples.length === 0) {
                     ctx.fillStyle = 'rgba(63, 82, 76, 0.74)';
-                    ctx.font = '600 14px Aptos, Segoe UI Variable, sans-serif';
+                    ctx.font = '600 20px Aptos, Segoe UI Variable, sans-serif';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
                     ctx.fillText('Waiting for layered control telemetry.', margin.left + (plotWidth / 2), margin.top + (plotHeight / 2));
@@ -3974,10 +3974,10 @@
                     ctx.setLineDash([]);
 
                     ctx.fillStyle = color;
-                    ctx.font = '700 12px Aptos, Segoe UI Variable, sans-serif';
+                    ctx.font = '700 16px Aptos, Segoe UI Variable, sans-serif';
                     ctx.textAlign = 'right';
                     ctx.textBaseline = 'bottom';
-                    ctx.fillText(label, canvas.width - margin.right - 6, y - 4);
+                    ctx.fillText(label, canvas.width - margin.right - 8, y - 6);
                 };
 
                 const rawDisplayCenter = 2048;
@@ -4037,7 +4037,7 @@
                     const shortLabel = {
                         mode_switch: 'mode',
                         drive_start: 'start',
-                        drive_stop: 'stop',
+                        drive_stop: 'end',
                         dual_activation: 'dual',
                         link_fault: 'fault'
                     }[event.type] || event.type;
@@ -4050,12 +4050,12 @@
                     ctx.stroke();
 
                     ctx.fillStyle = 'rgba(255, 247, 237, 0.98)';
-                    ctx.fillRect(x - 28, margin.top - 28, 56, 18);
+                    ctx.fillRect(x - 38, margin.top - 36, 76, 26);
                     ctx.fillStyle = '#7c2d12';
-                    ctx.font = '700 12px Aptos, Segoe UI Variable, sans-serif';
+                    ctx.font = '700 16px Aptos, Segoe UI Variable, sans-serif';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    ctx.fillText(shortLabel, x, margin.top - 19);
+                    ctx.fillText(shortLabel, x, margin.top - 23);
                 });
 
                 drawSeries(raw1, rawLaneIndex, 'rgba(37, 99, 235, 0.94)', 2.6);
@@ -4070,24 +4070,24 @@
                     { label: 'emg1', color: 'rgba(37, 99, 235, 0.9)', dash: [] },
                     { label: 'emg2', color: 'rgba(5, 150, 105, 0.9)', dash: [] }
                 ];
-                let rawLegendX = canvas.width - margin.right - 168;
-                const rawLegendY = margin.top + (laneHeight * rawLaneIndex) + 24;
+                let rawLegendX = canvas.width - margin.right - 220;
+                const rawLegendY = margin.top + (laneHeight * rawLaneIndex) + 30;
                 rawLegendItems.forEach((item) => {
                     ctx.beginPath();
                     ctx.setLineDash(item.dash);
                     ctx.strokeStyle = item.color;
-                    ctx.lineWidth = 3;
+                    ctx.lineWidth = 4;
                     ctx.moveTo(rawLegendX, rawLegendY);
-                    ctx.lineTo(rawLegendX + 24, rawLegendY);
+                    ctx.lineTo(rawLegendX + 30, rawLegendY);
                     ctx.stroke();
                     ctx.setLineDash([]);
 
                     ctx.fillStyle = 'rgba(23, 34, 31, 0.88)';
-                    ctx.font = '700 13px Aptos, Segoe UI Variable, sans-serif';
+                    ctx.font = '700 17px Aptos, Segoe UI Variable, sans-serif';
                     ctx.textAlign = 'left';
                     ctx.textBaseline = 'middle';
-                    ctx.fillText(item.label, rawLegendX + 32, rawLegendY);
-                    rawLegendX += 84;
+                    ctx.fillText(item.label, rawLegendX + 40, rawLegendY);
+                    rawLegendX += 106;
                 });
 
                 const legendItems = [
@@ -4097,31 +4097,25 @@
                     { label: 'speed', color: '#d97706', dash: [12, 8] },
                     { label: 'cap', color: 'rgba(63, 82, 76, 0.7)', dash: [3, 6] }
                 ];
-                let legendX = canvas.width - margin.right - 402;
-                const legendY = derivedLaneTop + 24;
+                let legendX = canvas.width - margin.right - 520;
+                const legendY = derivedLaneTop + 30;
                 legendItems.forEach((item) => {
                     ctx.beginPath();
                     ctx.setLineDash(item.dash);
                     ctx.strokeStyle = item.color;
-                    ctx.lineWidth = 3;
+                    ctx.lineWidth = 4;
                     ctx.moveTo(legendX, legendY);
-                    ctx.lineTo(legendX + 24, legendY);
+                    ctx.lineTo(legendX + 30, legendY);
                     ctx.stroke();
                     ctx.setLineDash([]);
 
                     ctx.fillStyle = 'rgba(23, 34, 31, 0.88)';
-                    ctx.font = '700 13px Aptos, Segoe UI Variable, sans-serif';
+                    ctx.font = '700 17px Aptos, Segoe UI Variable, sans-serif';
                     ctx.textAlign = 'left';
                     ctx.textBaseline = 'middle';
-                    ctx.fillText(item.label, legendX + 32, legendY);
-                    legendX += 82;
+                    ctx.fillText(item.label, legendX + 40, legendY);
+                    legendX += 104;
                 });
-
-                ctx.fillStyle = 'rgba(63, 82, 76, 0.86)';
-                ctx.font = '700 13px Aptos, Segoe UI Variable, sans-serif';
-                ctx.textAlign = 'right';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(`logic: on ${threshold} / off ${this.emgReleaseThreshold} / hyst ${hysteresis}`, canvas.width - margin.right - 8, derivedLaneTop + 52);
             }
 
             drawGrid() {
