@@ -1881,30 +1881,35 @@
                 history.length = 0;
                 history.push(...activeTouches);
 
-                if (history.length < 2) return;
+                if (history.length === 0) return;
 
-                for (let i = 1; i < history.length; i++) {
-                    const previous = history[i - 1];
-                    const current = history[i];
-                    const age = now - current.timestamp;
-                    const maxAge = current.releaseGhost ? (current.releaseFadeMs || this.releaseFadeMs) : this.trailMaxAgeMs;
+                for (let i = 0; i < history.length; i++) {
+                    const touch = history[i];
+                    const age = now - touch.timestamp;
+                    const maxAge = touch.releaseGhost ? (touch.releaseFadeMs || this.releaseFadeMs) : this.trailMaxAgeMs;
 
                     if (age > maxAge) continue;
 
                     const ageOpacity = Math.max(0, 1 - (age / maxAge));
-                    const positionOpacity = i / history.length;
+                    const positionOpacity = (i + 1) / history.length;
                     const opacity = ageOpacity * positionOpacity;
+                    const size = this.touchDotSize;
 
                     this.ctx.save();
                     this.ctx.globalAlpha = opacity;
-                    this.ctx.strokeStyle = ringColor;
-                    this.ctx.lineWidth = 7;
-                    this.ctx.lineCap = 'round';
-                    this.ctx.lineJoin = 'round';
+
+                    const gradient = this.ctx.createRadialGradient(
+                        touch.x, touch.y, 0,
+                        touch.x, touch.y, size
+                    );
+                    gradient.addColorStop(0, gradientColors[0]);
+                    gradient.addColorStop(0.7, gradientColors[1]);
+                    gradient.addColorStop(1, 'transparent');
+
+                    this.ctx.fillStyle = gradient;
                     this.ctx.beginPath();
-                    this.ctx.moveTo(previous.x, previous.y);
-                    this.ctx.lineTo(current.x, current.y);
-                    this.ctx.stroke();
+                    this.ctx.arc(touch.x, touch.y, size, 0, Math.PI * 2);
+                    this.ctx.fill();
                     this.ctx.restore();
                 }
             }
