@@ -3869,9 +3869,9 @@
                 const samples = this.timelineSamples;
                 const events = this.timelineEvents;
                 const lanes = [
-                    { labelLines: ['RAW', 'EMG1 / EMG2'], key: 'rawSignals' },
-                    { labelLines: ['DRIVE', 'OPEN / CLOSE'], key: 'driveControl' },
-                    { labelLines: ['SPEED', 'SMOOTH / CAP'], key: 'speedControl' }
+                    { labelLines: ['RAW'], key: 'rawSignals' },
+                    { labelLines: ['DRIVE'], key: 'driveControl' },
+                    { labelLines: ['SPEED'], key: 'speedControl' }
                 ];
                 const margin = { top: 64, right: 24, bottom: 24, left: 230 };
                 const plotWidth = canvas.width - margin.left - margin.right;
@@ -3907,10 +3907,7 @@
                     ctx.textAlign = 'left';
                     ctx.textBaseline = 'middle';
                     ctx.font = '700 31px Aptos, Segoe UI Variable, sans-serif';
-                    ctx.fillText(lane.labelLines[0], 18, y + (laneHeight / 2) - 18);
-                    ctx.font = '700 22px Aptos, Segoe UI Variable, sans-serif';
-                    ctx.fillStyle = 'rgba(63, 82, 76, 0.88)';
-                    ctx.fillText(lane.labelLines[1], 18, y + (laneHeight / 2) + 20);
+                    ctx.fillText(lane.labelLines[0], 18, y + (laneHeight / 2));
                 });
 
                 if (samples.length === 0) {
