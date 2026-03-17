@@ -59,7 +59,7 @@
             padding: 28px;
             box-shadow: var(--shadow);
             border: 1px solid rgba(255, 255, 255, 0.55);
-            max-width: 980px;
+            max-width: 1280px;
             width: 100%;
         }
 
@@ -323,6 +323,23 @@
             background-color: var(--canvas-surface);
         }
 
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.95fr);
+            gap: 18px;
+            align-items: start;
+        }
+
+        .dashboard-main {
+            min-width: 0;
+        }
+
+        .dashboard-side {
+            min-width: 0;
+            display: grid;
+            gap: 16px;
+        }
+
         .info-panel {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -422,6 +439,238 @@
             font-size: 13px;
         }
 
+        .stack-panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+        }
+
+        .stack-title {
+            margin: 0 0 4px 0;
+            color: var(--muted);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+        }
+
+        .stack-subtitle {
+            margin: 0 0 14px 0;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        .command-card {
+            padding: 18px;
+            border-radius: 18px;
+            background:
+                radial-gradient(circle at top right, rgba(255,255,255,0.46), transparent 30%),
+                linear-gradient(150deg, rgba(240, 247, 244, 0.96), rgba(228, 238, 233, 0.94));
+            border: 1px solid rgba(15, 118, 110, 0.16);
+            margin-bottom: 14px;
+        }
+
+        .command-eyebrow {
+            margin: 0 0 6px 0;
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+
+        .command-state-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 14px;
+            margin-bottom: 12px;
+        }
+
+        .command-state {
+            margin: 0;
+            font-family: var(--font-display);
+            font-size: clamp(28px, 4vw, 40px);
+            line-height: 0.96;
+            letter-spacing: -0.03em;
+            color: var(--ink);
+        }
+
+        .command-speed {
+            font-size: 13px;
+            color: var(--muted);
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .command-track-wrap {
+            margin-bottom: 10px;
+        }
+
+        .command-track {
+            position: relative;
+            height: 20px;
+            border-radius: 999px;
+            overflow: hidden;
+            background: linear-gradient(90deg, rgba(37, 99, 235, 0.14), rgba(15, 118, 110, 0.06) 50%, rgba(185, 56, 47, 0.14));
+            border: 1px solid rgba(26, 42, 37, 0.12);
+        }
+
+        .command-center-line {
+            position: absolute;
+            top: 2px;
+            bottom: 2px;
+            left: calc(50% - 1px);
+            width: 2px;
+            background: rgba(26, 42, 37, 0.18);
+            border-radius: 999px;
+        }
+
+        .command-fill {
+            position: absolute;
+            top: 2px;
+            bottom: 2px;
+            border-radius: 999px;
+            background: linear-gradient(180deg, rgba(15, 118, 110, 0.95), rgba(11, 95, 89, 0.92));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
+        }
+
+        .command-axis-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .command-note {
+            margin-top: 12px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .emg-sources {
+            display: grid;
+            gap: 12px;
+        }
+
+        .emg-source-row {
+            display: grid;
+            gap: 7px;
+        }
+
+        .emg-source-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+            color: var(--ink);
+            font-weight: 700;
+        }
+
+        .emg-source-track {
+            position: relative;
+            height: 16px;
+            border-radius: 999px;
+            background: rgba(26, 42, 37, 0.08);
+            overflow: hidden;
+            border: 1px solid rgba(26, 42, 37, 0.1);
+        }
+
+        .emg-source-fill {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            border-radius: 999px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
+        }
+
+        .emg-source-fill.open {
+            background: linear-gradient(180deg, #60a5fa, #2563eb);
+        }
+
+        .emg-source-fill.close {
+            background: linear-gradient(180deg, #34d399, #0f766e);
+        }
+
+        .emg-threshold {
+            position: absolute;
+            top: 1px;
+            bottom: 1px;
+            width: 2px;
+            left: 70%;
+            background: rgba(26, 42, 37, 0.18);
+            border-radius: 999px;
+        }
+
+        .adaptive-status-card {
+            display: grid;
+            gap: 14px;
+        }
+
+        .adaptive-state-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .adaptive-state {
+            margin: 0;
+            font-family: var(--font-display);
+            font-size: clamp(24px, 3.5vw, 34px);
+            line-height: 0.98;
+            letter-spacing: -0.03em;
+            color: var(--ink);
+        }
+
+        .adaptive-badge {
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(15, 118, 110, 0.1);
+            color: var(--accent-strong);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .adaptive-metrics {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .adaptive-metric {
+            padding: 12px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.46);
+            border: 1px solid rgba(26, 42, 37, 0.08);
+        }
+
+        .adaptive-metric-label {
+            margin: 0 0 4px 0;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .adaptive-metric-value {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--ink);
+        }
+
         .serial-panel {
             margin-top: 20px;
             background: linear-gradient(180deg, rgba(19, 27, 25, 0.95), rgba(13, 18, 17, 0.96));
@@ -500,6 +749,14 @@
                 grid-template-columns: 1fr;
             }
 
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .adaptive-metrics {
+                grid-template-columns: 1fr;
+            }
+
             .serial-toolbar {
                 flex-direction: column;
                 align-items: flex-start;
@@ -545,35 +802,113 @@
                 </div>
             </div>
 
-            <div class="gesture-panel">
-                <div class="gesture-toolbar">
-                    <h3 class="gesture-title">Gesture Detector</h3>
-                    <button id="clearGestureBtn" class="clear-btn">Clear Log</button>
-                </div>
-                <div id="gestureCurrent" class="gesture-current">NONE</div>
-                <ul id="gestureLog" class="gesture-log"></ul>
-            </div>
+            <div class="dashboard-grid">
+                <div class="dashboard-main">
+                    <div class="gesture-panel">
+                        <div class="gesture-toolbar">
+                            <h3 class="gesture-title">Gesture Detector</h3>
+                            <button id="clearGestureBtn" class="clear-btn">Clear Log</button>
+                        </div>
+                        <div id="gestureCurrent" class="gesture-current">NONE</div>
+                        <ul id="gestureLog" class="gesture-log"></ul>
+                    </div>
 
-            <div class="canvas-container">
-                <canvas id="touchCanvas" width="800" height="600"></canvas>
-            </div>
+                    <div class="canvas-container">
+                        <canvas id="touchCanvas" width="800" height="600"></canvas>
+                    </div>
 
-            <div class="info-panel">
-                <div class="info-box">
-                    <h3>X Positions</h3>
-                    <div id="xValue" class="info-value-list">-</div>
-                    <div class="info-label">pixels</div>
+                    <div class="info-panel">
+                        <div class="info-box">
+                            <h3>X Positions</h3>
+                            <div id="xValue" class="info-value-list">-</div>
+                            <div class="info-label">pixels</div>
+                        </div>
+                        <div class="info-box">
+                            <h3>Y Positions</h3>
+                            <div id="yValue" class="info-value-list">-</div>
+                            <div class="info-label">pixels</div>
+                        </div>
+                        <div class="info-box">
+                            <h3>Touches</h3>
+                            <div id="touchCountValue" class="info-value">0</div>
+                            <div class="info-label">active contacts</div>
+                            <div id="touchDiagValue" class="info-detail">Palm: -</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="info-box">
-                    <h3>Y Positions</h3>
-                    <div id="yValue" class="info-value-list">-</div>
-                    <div class="info-label">pixels</div>
-                </div>
-                <div class="info-box">
-                    <h3>Touches</h3>
-                    <div id="touchCountValue" class="info-value">0</div>
-                    <div class="info-label">active contacts</div>
-                    <div id="touchDiagValue" class="info-detail">Palm: -</div>
+
+                <div class="dashboard-side">
+                    <div class="stack-panel">
+                        <h3 class="stack-title">EMG Drive</h3>
+                        <p class="stack-subtitle">Interpreted closure command first, then the two EMG source contributions that produced it.</p>
+
+                        <div class="command-card">
+                            <p class="command-eyebrow">Closure Command</p>
+                            <div class="command-state-row">
+                                <h3 id="commandState" class="command-state">Neutral</h3>
+                                <div id="commandSpeed" class="command-speed">Speed 0%</div>
+                            </div>
+                            <div class="command-track-wrap">
+                                <div class="command-track">
+                                    <div id="commandFill" class="command-fill" style="left: 50%; width: 0%;"></div>
+                                    <div class="command-center-line"></div>
+                                </div>
+                                <div class="command-axis-labels">
+                                    <span>Open</span>
+                                    <span>Neutral</span>
+                                    <span>Close</span>
+                                </div>
+                            </div>
+                            <div id="commandNote" class="command-note">Awaiting emg drive data.</div>
+                        </div>
+
+                        <div class="emg-sources">
+                            <div class="emg-source-row">
+                                <div class="emg-source-header">
+                                    <span>Open Drive</span>
+                                    <span id="openDriveValue">0%</span>
+                                </div>
+                                <div class="emg-source-track">
+                                    <div class="emg-threshold"></div>
+                                    <div id="openDriveFill" class="emg-source-fill open" style="width: 0%;"></div>
+                                </div>
+                            </div>
+
+                            <div class="emg-source-row">
+                                <div class="emg-source-header">
+                                    <span>Close Drive</span>
+                                    <span id="closeDriveValue">0%</span>
+                                </div>
+                                <div class="emg-source-track">
+                                    <div class="emg-threshold"></div>
+                                    <div id="closeDriveFill" class="emg-source-fill close" style="width: 0%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stack-panel">
+                        <h3 class="stack-title">Adaptive Grasping</h3>
+                        <p class="stack-subtitle">Tactile-state feedback that modifies or stabilizes the commanded grasp after contact.</p>
+
+                        <div class="adaptive-status-card">
+                            <div class="adaptive-state-row">
+                                <h3 id="adaptiveState" class="adaptive-state">Inactive</h3>
+                                <div id="adaptiveBadge" class="adaptive-badge">Awaiting data</div>
+                            </div>
+
+                            <div class="adaptive-metrics">
+                                <div class="adaptive-metric">
+                                    <p class="adaptive-metric-label">Assist</p>
+                                    <p id="adaptiveAssist" class="adaptive-metric-value">0%</p>
+                                </div>
+                                <div class="adaptive-metric">
+                                    <p class="adaptive-metric-label">Contacts</p>
+                                    <p id="adaptiveContacts" class="adaptive-metric-value">0</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -683,6 +1018,20 @@
                 this.controllerState = {
                     modeKey: 'idle'
                 };
+                this.emgDrive = {
+                    available: false,
+                    open: 0,
+                    close: 0,
+                    command: 0,
+                    speed: 0,
+                    state: 'neutral'
+                };
+                this.tactileState = {
+                    available: false,
+                    mode: 'inactive',
+                    assist: 0,
+                    contacts: 0
+                };
                 this.modeCatalog = {
                     idle: {
                         name: 'Standby',
@@ -718,6 +1067,8 @@
 
                 this.initializeUI();
                 this.renderControllerState();
+                this.renderEmgDrive();
+                this.renderTactileState();
                 this.startAnimation();
                 this.checkWebSerialSupport();
             }
@@ -794,6 +1145,7 @@
                 this.clearTouchInfo();
                 this.clearPalmDiagnostics();
                 this.resetControllerState();
+                this.resetTelemetryPanels();
             }
 
             async connectDemo() {
@@ -807,6 +1159,7 @@
 
                 this.clearTrail();
                 this.clearPalmDiagnostics();
+                this.resetTelemetryPanels();
                 this.portLabel = 'realistic demo source';
                 this.isDemoMode = true;
                 this.isConnected = true;
@@ -927,21 +1280,65 @@
 
             buildDemoFrames() {
                 return [
-                    ...this.createSwipeScene(2, 220, 280, 640, 280, 38),
+                    ...this.withTelemetry(
+                        this.createSwipeScene(2, 220, 280, 640, 280, 38),
+                        { open: 8, close: 84, command: 76, speed: 82, state: 'close' },
+                        { mode: 'inactive', assist: 0, contacts: 0 }
+                    ),
                     ...this.createDemoGestureCue('TWO_FINGER_SWIPE'),
-                    ...this.createIdleScene(this.demoScenePauseFrames),
-                    ...this.createPinchScene(2, 260, 320, 600, 320, 38),
+                    ...this.withTelemetry(
+                        this.createIdleScene(this.demoScenePauseFrames),
+                        { open: 0, close: 0, command: 0, speed: 0, state: 'neutral' },
+                        { mode: 'inactive', assist: 0, contacts: 0 }
+                    ),
+                    ...this.withTelemetry(
+                        this.createPinchScene(2, 260, 320, 600, 320, 38),
+                        { open: 14, close: 62, command: 48, speed: 58, state: 'close' },
+                        { mode: 'contact', assist: 28, contacts: 2 }
+                    ),
                     ...this.createDemoGestureCue('TWO_FINGER_PINCH'),
-                    ...this.createIdleScene(this.demoScenePauseFrames),
-                    ...this.createPinchScene(3, 240, 420, 640, 420, 40),
+                    ...this.withTelemetry(
+                        this.createIdleScene(this.demoScenePauseFrames),
+                        { open: 0, close: 0, command: 0, speed: 0, state: 'neutral' },
+                        { mode: 'inactive', assist: 0, contacts: 0 }
+                    ),
+                    ...this.withTelemetry(
+                        this.createPinchScene(3, 240, 420, 640, 420, 40),
+                        { open: 12, close: 55, command: 43, speed: 50, state: 'close' },
+                        { mode: 'holding', assist: 44, contacts: 3 }
+                    ),
                     ...this.createDemoGestureCue('THREE_FINGER_PINCH'),
-                    ...this.createIdleScene(this.demoScenePauseFrames),
-                    ...this.createPalmScene(12)
+                    ...this.withTelemetry(
+                        this.createIdleScene(this.demoScenePauseFrames),
+                        { open: 0, close: 0, command: 0, speed: 0, state: 'neutral' },
+                        { mode: 'inactive', assist: 0, contacts: 0 }
+                    ),
+                    ...this.withTelemetry(
+                        this.createPalmScene(12),
+                        { open: 0, close: 0, command: 0, speed: 0, state: 'neutral' },
+                        { mode: 'inactive', assist: 0, contacts: 0 }
+                    )
                 ];
             }
 
             createDemoGestureCue(name) {
                 return [[`DEMO_GESTURE ${name}`]];
+            }
+
+            withTelemetry(frames, emgDrive, tactileState) {
+                return frames.map((frame) => [
+                    this.makeEmgDriveLine(emgDrive),
+                    this.makeTactileStateLine(tactileState),
+                    ...frame
+                ]);
+            }
+
+            makeEmgDriveLine(emgDrive) {
+                return `EMG_DRIVE open=${emgDrive.open} close=${emgDrive.close} command=${emgDrive.command} speed=${emgDrive.speed} state=${emgDrive.state}`;
+            }
+
+            makeTactileStateLine(tactileState) {
+                return `TACTILE_STATE mode=${tactileState.mode} assist=${tactileState.assist} contacts=${tactileState.contacts}`;
             }
 
             createIdleScene(frameCount) {
@@ -1276,6 +1673,93 @@
                 this.renderControllerState();
             }
 
+            resetTelemetryPanels() {
+                this.emgDrive = {
+                    available: false,
+                    open: 0,
+                    close: 0,
+                    command: 0,
+                    speed: 0,
+                    state: 'neutral'
+                };
+                this.tactileState = {
+                    available: false,
+                    mode: 'inactive',
+                    assist: 0,
+                    contacts: 0
+                };
+                this.renderEmgDrive();
+                this.renderTactileState();
+            }
+
+            renderEmgDrive() {
+                const stateEl = document.getElementById('commandState');
+                const speedEl = document.getElementById('commandSpeed');
+                const noteEl = document.getElementById('commandNote');
+                const fillEl = document.getElementById('commandFill');
+                const openValueEl = document.getElementById('openDriveValue');
+                const closeValueEl = document.getElementById('closeDriveValue');
+                const openFillEl = document.getElementById('openDriveFill');
+                const closeFillEl = document.getElementById('closeDriveFill');
+
+                const displayState = (this.emgDrive.state || 'neutral').toLowerCase();
+                const stateMap = {
+                    open: 'Open',
+                    close: 'Close',
+                    neutral: 'Neutral'
+                };
+                const command = Math.max(-100, Math.min(100, this.emgDrive.command || 0));
+                const openValue = Math.max(0, Math.min(100, this.emgDrive.open || 0));
+                const closeValue = Math.max(0, Math.min(100, this.emgDrive.close || 0));
+                const speed = Math.max(0, Math.min(100, this.emgDrive.speed || 0));
+                const magnitude = Math.abs(command);
+
+                stateEl.textContent = stateMap[displayState] || 'Neutral';
+                speedEl.textContent = `Speed ${speed}%`;
+
+                if (!this.emgDrive.available) {
+                    noteEl.textContent = 'Awaiting emg drive data.';
+                } else if (displayState === 'neutral' || magnitude === 0) {
+                    noteEl.textContent = 'No closure command is being driven right now.';
+                } else {
+                    noteEl.textContent = `${stateMap[displayState] || 'Neutral'} command is being driven from the two EMG sources below.`;
+                }
+
+                fillEl.style.width = `${magnitude}%`;
+                fillEl.style.left = command >= 0 ? '50%' : `calc(50% - ${magnitude}%)`;
+                fillEl.style.background = displayState === 'open'
+                    ? 'linear-gradient(180deg, rgba(37, 99, 235, 0.95), rgba(30, 78, 199, 0.92))'
+                    : displayState === 'close'
+                        ? 'linear-gradient(180deg, rgba(15, 118, 110, 0.95), rgba(11, 95, 89, 0.92))'
+                        : 'linear-gradient(180deg, rgba(140, 152, 147, 0.6), rgba(109, 120, 116, 0.6))';
+
+                openValueEl.textContent = `${openValue}%`;
+                closeValueEl.textContent = `${closeValue}%`;
+                openFillEl.style.width = `${openValue}%`;
+                closeFillEl.style.width = `${closeValue}%`;
+            }
+
+            renderTactileState() {
+                const stateEl = document.getElementById('adaptiveState');
+                const badgeEl = document.getElementById('adaptiveBadge');
+                const assistEl = document.getElementById('adaptiveAssist');
+                const contactsEl = document.getElementById('adaptiveContacts');
+
+                const mode = (this.tactileState.mode || 'inactive').toLowerCase();
+                const modeMap = {
+                    inactive: 'Inactive',
+                    contact: 'Contact',
+                    holding: 'Holding',
+                    slip: 'Slip Correction',
+                    adjusting: 'Adjusting'
+                };
+
+                stateEl.textContent = modeMap[mode] || 'Inactive';
+                badgeEl.textContent = this.tactileState.available ? 'Live state' : 'Awaiting data';
+                assistEl.textContent = `${Math.max(0, Math.min(100, this.tactileState.assist || 0))}%`;
+                contactsEl.textContent = `${Math.max(0, Math.min(5, this.tactileState.contacts || 0))}`;
+            }
+
             modeKeyFromGesture(name) {
                 const map = {
                     'DOUBLE_TAP': 'point',
@@ -1366,6 +1850,34 @@
                 if (data.startsWith('DEMO_GESTURE ')) {
                     if (this.isDemoMode) {
                         this.emitDemoGesture(data.replace('DEMO_GESTURE ', '').trim());
+                    }
+                    return;
+                }
+                if (data.startsWith('EMG_DRIVE ')) {
+                    const emgMatch = data.match(/^EMG_DRIVE\s+open=(\d+)\s+close=(\d+)\s+command=(-?\d+)\s+speed=(\d+)\s+state=(open|neutral|close)$/i);
+                    if (emgMatch) {
+                        this.emgDrive = {
+                            available: true,
+                            open: Math.max(0, Math.min(100, parseInt(emgMatch[1], 10))),
+                            close: Math.max(0, Math.min(100, parseInt(emgMatch[2], 10))),
+                            command: Math.max(-100, Math.min(100, parseInt(emgMatch[3], 10))),
+                            speed: Math.max(0, Math.min(100, parseInt(emgMatch[4], 10))),
+                            state: emgMatch[5].toLowerCase()
+                        };
+                        this.renderEmgDrive();
+                    }
+                    return;
+                }
+                if (data.startsWith('TACTILE_STATE ')) {
+                    const tactileMatch = data.match(/^TACTILE_STATE\s+mode=(inactive|contact|holding|slip|adjusting)\s+assist=(\d+)\s+contacts=(\d+)$/i);
+                    if (tactileMatch) {
+                        this.tactileState = {
+                            available: true,
+                            mode: tactileMatch[1].toLowerCase(),
+                            assist: Math.max(0, Math.min(100, parseInt(tactileMatch[2], 10))),
+                            contacts: Math.max(0, Math.min(5, parseInt(tactileMatch[3], 10)))
+                        };
+                        this.renderTactileState();
                     }
                     return;
                 }
