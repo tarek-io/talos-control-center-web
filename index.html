@@ -1305,8 +1305,10 @@
                 this.timelineMaxSamples = 420;
                 this.timelineDisplaySamples = 128;
                 this.timelineMaxEvents = 96;
+                this.timelineStopDebounceSamples = 6;
                 this.timelineAnnotationLatch = {
-                    activeState: null
+                    activeState: null,
+                    pendingStop: null
                 };
                 this.isRecording = false;
                 this.recordingStartedAtMs = 0;
@@ -2811,7 +2813,8 @@
                 this.timelineSamples = [];
                 this.timelineEvents = [];
                 this.timelineAnnotationLatch = {
-                    activeState: null
+                    activeState: null,
+                    pendingStop: null
                 };
                 this.telemetryPending = {
                     raw: null,
@@ -2896,6 +2899,12 @@
                     this.timelineEvents = this.timelineEvents
                         .map((event) => ({ ...event, sampleIndex: event.sampleIndex - 1 }))
                         .filter((event) => event.sampleIndex >= 0);
+                    if (this.timelineAnnotationLatch.pendingStop) {
+                        this.timelineAnnotationLatch.pendingStop.sampleIndex = Math.max(
+                            0,
+                            this.timelineAnnotationLatch.pendingStop.sampleIndex - 1
+                        );
+                    }
                 }
 
                 const raw = this.telemetryPending.raw || this.telemetryLatest.raw;
@@ -2915,12 +2924,47 @@
                     modeKey: command.modeKey
                 });
 
+                this.flushPendingTimelineStop();
+
                 this.telemetryPending = {
                     raw: null,
                     filtered: null,
                     drive: null,
                     command: null
                 };
+            }
+
+            appendTimelineEvent(type, value, sampleIndex = null) {
+                this.timelineEvents.push({
+                    type,
+                    value: value || '',
+                    sampleIndex: sampleIndex === null
+                        ? (this.timelineSamples.length > 0 ? this.timelineSamples.length - 1 : 0)
+                        : sampleIndex
+                });
+
+                while (this.timelineEvents.length > this.timelineMaxEvents) {
+                    this.timelineEvents.shift();
+                }
+            }
+
+            flushPendingTimelineStop() {
+                const pendingStop = this.timelineAnnotationLatch.pendingStop;
+                if (!pendingStop) {
+                    return;
+                }
+
+                const currentSampleIndex = this.timelineSamples.length > 0
+                    ? this.timelineSamples.length - 1
+                    : 0;
+                const heldSamples = currentSampleIndex - pendingStop.sampleIndex;
+                if (heldSamples < this.timelineStopDebounceSamples) {
+                    return;
+                }
+
+                this.timelineAnnotationLatch.activeState = null;
+                this.timelineAnnotationLatch.pendingStop = null;
+                this.appendTimelineEvent('drive_stop', pendingStop.value, pendingStop.sampleIndex);
             }
 
             recordTimelineEvent(type, value) {
@@ -2930,6 +2974,9 @@
 
                 const normalizedValue = (value || '').trim().toLowerCase();
                 if (type === 'drive_start') {
+                    if (this.timelineAnnotationLatch.pendingStop) {
+                        this.timelineAnnotationLatch.pendingStop = null;
+                    }
                     if (this.timelineAnnotationLatch.activeState) {
                         return;
                     }
@@ -2938,22 +2985,15 @@
                     if (!this.timelineAnnotationLatch.activeState) {
                         return;
                     }
-                    this.timelineAnnotationLatch.activeState = null;
+                    this.timelineAnnotationLatch.pendingStop = {
+                        value: normalizedValue || this.timelineAnnotationLatch.activeState || 'active',
+                        sampleIndex: this.timelineSamples.length > 0
+                            ? this.timelineSamples.length - 1
+                            : 0
+                    };
+                    return;
                 }
-
-                const sampleIndex = this.timelineSamples.length > 0
-                    ? this.timelineSamples.length - 1
-                    : 0;
-
-                this.timelineEvents.push({
-                    type,
-                    value: value || '',
-                    sampleIndex
-                });
-
-                while (this.timelineEvents.length > this.timelineMaxEvents) {
-                    this.timelineEvents.shift();
-                }
+                this.appendTimelineEvent(type, value || '');
             }
 
             getRequestedSpeed() {
