@@ -659,7 +659,7 @@
             position: absolute;
             top: 2px;
             bottom: 2px;
-            left: calc(50% - 1px);
+            left: 0;
             width: 2px;
             background: rgba(26, 42, 37, 0.18);
             border-radius: 999px;
@@ -3616,6 +3616,7 @@
                 const openFillEl = document.getElementById('commandFillOpen');
                 const closeFillEl = document.getElementById('commandFillClose');
                 const trackEl = document.querySelector('.command-track');
+                const centerLineEl = document.querySelector('.command-center-line');
                 const thresholdOpenOffEl = document.getElementById('commandThresholdOpenOff');
                 const thresholdOpenOnEl = document.getElementById('commandThresholdOpenOn');
                 const thresholdCloseOffEl = document.getElementById('commandThresholdCloseOff');
@@ -3629,7 +3630,7 @@
                 const speedCapFillEl = document.getElementById('commandSpeedCapFill');
                 const speedFillEl = document.getElementById('commandSpeedFill');
 
-                if (!stateEl || !openFillEl || !closeFillEl || !thresholdOpenOffEl || !thresholdOpenOnEl ||
+                if (!stateEl || !openFillEl || !closeFillEl || !centerLineEl || !thresholdOpenOffEl || !thresholdOpenOnEl ||
                     !trackEl || !thresholdCloseOffEl || !thresholdCloseOnEl || !thresholdOpenOffLabelEl || !thresholdOpenLabelEl ||
                     !thresholdCloseOffLabelEl || !thresholdCloseLabelEl || !speedCapValueEl || !speedAxisValueEl ||
                     !speedCapFillEl || !speedFillEl) {
@@ -3692,6 +3693,7 @@
                     el.style.left = `${guideLeft}px`;
                 };
 
+                placeGuideAtPercent(centerLineEl, 50);
                 placeGuideAtPercent(thresholdOpenOffEl, 50 - releaseThreshold);
                 placeGuideAtPercent(thresholdOpenOnEl, 50 - activationThreshold);
                 placeGuideAtPercent(thresholdCloseOffEl, 50 + releaseThreshold);
