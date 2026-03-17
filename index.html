@@ -843,6 +843,17 @@
             line-height: 1.5;
         }
 
+        .adaptive-status-response {
+            display: grid;
+            gap: 10px;
+            padding-top: 2px;
+            border-top: 1px solid rgba(26, 42, 37, 0.08);
+        }
+
+        .adaptive-status-response .adaptive-section-header {
+            align-items: baseline;
+        }
+
         .adaptive-metrics {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1420,6 +1431,28 @@
                                         <p id="adaptivePhase" class="adaptive-metric-value">Idle</p>
                                     </div>
                                 </div>
+
+                                <div class="adaptive-status-response">
+                                    <div class="adaptive-section-header">
+                                        <h4 class="adaptive-section-title">Controller Response</h4>
+                                        <span id="adaptiveResponseMode" class="adaptive-section-note">Idle response</span>
+                                    </div>
+
+                                    <div class="adaptive-response-grid">
+                                        <div class="adaptive-response-card">
+                                            <p class="adaptive-response-label">Support Bias</p>
+                                            <p id="adaptiveHoldBias" class="adaptive-response-value">0%</p>
+                                        </div>
+                                        <div class="adaptive-response-card">
+                                            <p class="adaptive-response-label">Slip Guard</p>
+                                            <p id="adaptiveSlipGuard" class="adaptive-response-value">Standby</p>
+                                        </div>
+                                        <div class="adaptive-response-card lead-card">
+                                            <p class="adaptive-response-label">Lead Fingers</p>
+                                            <p id="adaptiveLeadFingers" class="adaptive-response-value">None</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="adaptive-section">
@@ -1430,27 +1463,6 @@
                                 <div id="adaptiveFingerGrid" class="adaptive-finger-grid"></div>
                             </div>
 
-                            <div class="adaptive-section">
-                                <div class="adaptive-section-header">
-                                    <h4 class="adaptive-section-title">Controller Response</h4>
-                                    <span id="adaptiveResponseMode" class="adaptive-section-note">Idle response</span>
-                                </div>
-
-                                <div class="adaptive-response-grid">
-                                    <div class="adaptive-response-card">
-                                        <p class="adaptive-response-label">Support Bias</p>
-                                        <p id="adaptiveHoldBias" class="adaptive-response-value">0%</p>
-                                    </div>
-                                    <div class="adaptive-response-card">
-                                        <p class="adaptive-response-label">Slip Guard</p>
-                                        <p id="adaptiveSlipGuard" class="adaptive-response-value">Standby</p>
-                                    </div>
-                                    <div class="adaptive-response-card lead-card">
-                                        <p class="adaptive-response-label">Lead Fingers</p>
-                                        <p id="adaptiveLeadFingers" class="adaptive-response-value">None</p>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
