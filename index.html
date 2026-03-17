@@ -246,9 +246,7 @@
         .mode-panel {
             position: relative;
             margin-bottom: 20px;
-            display: grid;
-            grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.95fr);
-            gap: 18px;
+            display: block;
             padding: 22px;
             border-radius: var(--radius-lg);
             background:
@@ -274,8 +272,7 @@
             pointer-events: none;
         }
 
-        .mode-copy-wrap,
-        .mode-visual-wrap {
+        .mode-copy-wrap {
             position: relative;
             z-index: 1;
         }
@@ -304,103 +301,6 @@
             line-height: 1.5;
             color: var(--muted);
             max-width: 480px;
-        }
-
-        .mode-visual-wrap {
-            display: flex;
-            align-items: stretch;
-        }
-
-        .mode-stage {
-            position: relative;
-            width: 100%;
-            min-height: 290px;
-            border-radius: 24px;
-            overflow: hidden;
-            background:
-                radial-gradient(circle at 50% 30%, rgba(255,255,255,0.56), transparent 34%),
-                linear-gradient(160deg, rgba(19, 30, 27, 0.94), rgba(15, 20, 19, 0.98));
-            border: 1px solid rgba(255,255,255,0.09);
-            box-shadow:
-                inset 0 1px 0 rgba(255,255,255,0.08),
-                inset 0 0 0 1px rgba(255,255,255,0.02);
-        }
-
-        .mode-stage::before,
-        .mode-stage::after {
-            content: "";
-            position: absolute;
-            border-radius: 999px;
-            pointer-events: none;
-        }
-
-        .mode-stage::before {
-            inset: 14% 18%;
-            border: 1px solid rgba(255,255,255,0.06);
-        }
-
-        .mode-stage::after {
-            inset: 24% 10%;
-            border: 1px solid rgba(255,255,255,0.04);
-        }
-
-        .mode-stage-glow {
-            position: absolute;
-            inset: auto;
-            width: 220px;
-            height: 220px;
-            right: 32px;
-            bottom: -30px;
-            border-radius: 999px;
-            background: radial-gradient(circle, color-mix(in srgb, var(--mode-accent) 45%, white 0%) 0%, rgba(255,255,255,0) 68%);
-            filter: blur(14px);
-            opacity: 0.72;
-            pointer-events: none;
-        }
-
-        .mode-figure {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            transform: translateY(10px) scale(0.97);
-            transition: opacity 0.28s ease, transform 0.28s ease;
-            color: var(--mode-accent);
-        }
-
-        .mode-figure.active {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
-
-        .mode-figure .pose-shell {
-            fill: rgba(255,255,255,0.92);
-            stroke: currentColor;
-            stroke-width: 6;
-            stroke-linejoin: round;
-        }
-
-        .mode-figure .pose-line {
-            stroke: rgba(255,255,255,0.92);
-            stroke-width: 10;
-            stroke-linecap: round;
-        }
-
-        .mode-figure .pose-accent {
-            fill: none;
-            stroke: currentColor;
-            stroke-width: 8;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-
-        .mode-figure .pose-accent-soft {
-            fill: none;
-            stroke: rgba(255,255,255,0.4);
-            stroke-width: 5;
-            stroke-linecap: round;
-            stroke-linejoin: round;
         }
 
         .canvas-container {
@@ -605,14 +505,6 @@
                 align-items: flex-start;
             }
 
-            .mode-panel {
-                grid-template-columns: 1fr;
-            }
-
-            .mode-stage {
-                min-height: 250px;
-            }
-
         }
     </style>
 </head>
@@ -650,84 +542,6 @@
                     <p class="mode-eyebrow">Current Mode</p>
                     <h2 id="modeName" class="mode-name">Standby</h2>
                     <p id="modeSummary" class="mode-summary">Waiting for the next gesture. Demo mode and live serial both drive this panel, so the interface can be designed without hardware.</p>
-                </div>
-                <div class="mode-visual-wrap">
-                    <div id="modeStage" class="mode-stage">
-                        <div class="mode-stage-glow"></div>
-                        <svg class="mode-figure active" data-mode-figure="idle" viewBox="0 0 320 320" aria-hidden="true">
-                            <path class="pose-shell" d="M130 248 C110 232 102 212 103 184 L103 132 C103 116 116 104 132 104 C148 104 160 116 160 132 L160 190" />
-                            <path class="pose-shell" d="M160 224 L160 88 C160 71 172 58 188 58 C204 58 216 71 216 88 L216 184" />
-                            <path class="pose-shell" d="M216 198 L216 78 C216 61 228 48 244 48 C260 48 272 61 272 78 L272 192" />
-                            <path class="pose-shell" d="M186 230 L186 66 C186 49 198 36 214 36 C230 36 242 49 242 66" />
-                            <path class="pose-shell" d="M138 186 L88 146 C75 136 57 139 47 152 C37 166 39 185 53 194 L116 239 C130 249 146 256 163 258 L200 262 C229 265 255 245 259 216 L264 178 C268 148 246 121 216 121 L170 121" />
-                        </svg>
-                        <svg class="mode-figure" data-mode-figure="two-swipe" viewBox="0 0 320 320" aria-hidden="true">
-                            <path class="pose-shell" d="M122 250 C105 235 98 215 99 188 L99 154 C99 137 111 124 127 124 C143 124 155 137 155 154 L155 214" />
-                            <path class="pose-shell" d="M155 228 L155 90 C155 72 168 58 184 58 C200 58 212 72 212 90 L212 206" />
-                            <path class="pose-shell" d="M194 214 L194 78 C194 61 206 48 222 48 C238 48 250 61 250 78 L250 190" />
-                            <path class="pose-shell" d="M132 190 L86 156 C72 146 52 149 41 162 C31 176 34 195 48 204 L112 248 C126 258 143 264 161 266 L196 269 C224 272 248 252 252 224 L257 188 C261 157 238 132 208 132 L164 132" />
-                            <path class="pose-accent" d="M72 84 H236" />
-                            <path class="pose-accent" d="M218 66 L246 84 L218 102" />
-                            <path class="pose-accent-soft" d="M90 110 H208" />
-                        </svg>
-                        <svg class="mode-figure" data-mode-figure="two-pinch" viewBox="0 0 320 320" aria-hidden="true">
-                            <path class="pose-shell" d="M130 244 C112 228 104 208 104 182 L104 146 C104 129 117 116 133 116 C149 116 161 129 161 146 L161 204" />
-                            <path class="pose-shell" d="M161 220 L161 90 C161 72 174 58 190 58 C206 58 218 72 218 90 L218 176" />
-                            <path class="pose-shell" d="M198 192 L198 98 C198 81 210 68 226 68 C242 68 254 81 254 98 L254 166" />
-                            <path class="pose-shell" d="M138 190 L102 176 C87 170 70 177 63 192 C56 208 62 225 77 232 L118 250 C134 257 151 261 168 260 L200 258 C226 256 248 235 251 209 L255 172 C258 145 238 122 211 122 L169 122" />
-                            <circle class="pose-accent" cx="150" cy="154" r="16" />
-                            <circle class="pose-accent" cx="206" cy="152" r="16" />
-                            <path class="pose-accent" d="M168 152 H188" />
-                            <path class="pose-accent-soft" d="M132 132 L120 118" />
-                            <path class="pose-accent-soft" d="M224 132 L236 118" />
-                        </svg>
-                        <svg class="mode-figure" data-mode-figure="two-spread" viewBox="0 0 320 320" aria-hidden="true">
-                            <path class="pose-shell" d="M130 246 C112 230 104 210 104 184 L104 146 C104 129 117 116 133 116 C149 116 161 129 161 146 L161 206" />
-                            <path class="pose-shell" d="M161 222 L161 90 C161 72 174 58 190 58 C206 58 218 72 218 90 L218 178" />
-                            <path class="pose-shell" d="M198 194 L198 100 C198 83 210 70 226 70 C242 70 254 83 254 100 L254 168" />
-                            <path class="pose-shell" d="M138 188 L103 174 C88 168 71 175 64 190 C57 206 63 223 78 230 L118 248 C134 256 151 260 168 259 L200 257 C226 255 247 234 251 208 L255 172 C258 146 238 122 212 122 L170 122" />
-                            <circle class="pose-accent" cx="128" cy="150" r="16" />
-                            <circle class="pose-accent" cx="230" cy="150" r="16" />
-                            <path class="pose-accent" d="M110 150 H84" />
-                            <path class="pose-accent" d="M248 150 H274" />
-                            <path class="pose-accent-soft" d="M150 150 H208" />
-                        </svg>
-                        <svg class="mode-figure" data-mode-figure="three-swipe" viewBox="0 0 320 320" aria-hidden="true">
-                            <path class="pose-shell" d="M116 248 C99 233 92 213 92 187 L92 132 C92 115 104 102 120 102 C136 102 148 115 148 132 L148 214" />
-                            <path class="pose-shell" d="M148 224 L148 80 C148 63 160 50 176 50 C192 50 204 63 204 80 L204 202" />
-                            <path class="pose-shell" d="M178 214 L178 68 C178 51 190 38 206 38 C222 38 234 51 234 68 L234 196" />
-                            <path class="pose-shell" d="M208 202 L208 84 C208 67 220 54 236 54 C252 54 264 67 264 84 L264 188" />
-                            <path class="pose-shell" d="M126 188 L78 154 C64 144 45 148 35 161 C25 175 28 194 42 204 L104 246 C119 256 136 262 154 264 L200 268 C229 271 255 250 259 221 L264 184 C269 151 245 124 212 124 L160 124" />
-                            <path class="pose-accent" d="M68 88 H246" />
-                            <path class="pose-accent" d="M228 70 L256 88 L228 106" />
-                            <path class="pose-accent-soft" d="M84 114 H216" />
-                        </svg>
-                        <svg class="mode-figure" data-mode-figure="three-pinch" viewBox="0 0 320 320" aria-hidden="true">
-                            <path class="pose-shell" d="M120 248 C104 234 98 215 98 190 L98 154 C98 138 110 126 126 126 C142 126 154 138 154 154 L154 210" />
-                            <path class="pose-shell" d="M154 226 L154 98 C154 80 167 66 183 66 C199 66 211 80 211 98 L211 186" />
-                            <path class="pose-shell" d="M184 214 L184 98 C184 82 196 70 212 70 C228 70 240 82 240 98 L240 178" />
-                            <path class="pose-shell" d="M214 198 L214 118 C214 102 226 90 242 90 C258 90 270 102 270 118 L270 170" />
-                            <path class="pose-shell" d="M132 188 L92 176 C77 171 62 179 56 194 C49 209 56 225 71 231 L110 246 C126 252 143 256 160 256 L197 256 C224 256 247 236 251 209 L256 175 C261 147 239 122 211 122 L164 122" />
-                            <circle class="pose-accent" cx="158" cy="160" r="14" />
-                            <circle class="pose-accent" cx="196" cy="142" r="14" />
-                            <circle class="pose-accent" cx="216" cy="176" r="14" />
-                            <path class="pose-accent-soft" d="M173 153 L187 147" />
-                            <path class="pose-accent-soft" d="M174 165 L201 172" />
-                        </svg>
-                        <svg class="mode-figure" data-mode-figure="three-spread" viewBox="0 0 320 320" aria-hidden="true">
-                            <path class="pose-shell" d="M120 246 C104 232 98 213 98 188 L98 154 C98 138 110 126 126 126 C142 126 154 138 154 154 L154 208" />
-                            <path class="pose-shell" d="M154 224 L154 96 C154 79 167 66 183 66 C199 66 211 79 211 96 L211 184" />
-                            <path class="pose-shell" d="M184 214 L184 96 C184 80 196 68 212 68 C228 68 240 80 240 96 L240 176" />
-                            <path class="pose-shell" d="M214 198 L214 114 C214 98 226 86 242 86 C258 86 270 98 270 114 L270 168" />
-                            <path class="pose-shell" d="M132 188 L92 174 C77 169 62 177 56 192 C49 207 56 223 71 229 L110 244 C126 251 143 255 160 255 L197 255 C224 255 247 235 251 208 L256 174 C261 146 239 122 211 122 L164 122" />
-                            <circle class="pose-accent" cx="136" cy="164" r="14" />
-                            <circle class="pose-accent" cx="196" cy="132" r="14" />
-                            <circle class="pose-accent" cx="244" cy="182" r="14" />
-                            <path class="pose-accent" d="M120 176 L96 188" />
-                            <path class="pose-accent" d="M196 114 V90" />
-                            <path class="pose-accent" d="M258 194 L280 206" />
-                        </svg>
-                    </div>
                 </div>
             </div>
 
@@ -862,43 +676,36 @@
                 this.modeCatalog = {
                     idle: {
                         name: 'Standby',
-                        figure: 'idle',
                         accent: '#0f766e',
                         summary: 'Waiting for the next gesture. Demo mode and live serial both drive this panel, so the interface can be designed without hardware.'
                     },
                     'power-grasp': {
                         name: 'Power Grasp',
-                        figure: 'two-swipe',
                         accent: '#2563eb',
                         summary: 'Full-hand closing mode for cylindrical or secure object capture. This is the main high-force grasp state.'
                     },
                     'key-pinch': {
                         name: 'Key Pinch',
-                        figure: 'two-pinch',
                         accent: '#d97706',
                         summary: 'Lateral pinch mode for thin objects such as keys, cards, or edges.'
                     },
                     hook: {
                         name: 'Hook',
-                        figure: 'two-spread',
                         accent: '#16a34a',
                         summary: 'Carry-oriented hook posture for handles, straps, and suspended loads.'
                     },
                     point: {
                         name: 'Point',
-                        figure: 'three-swipe',
                         accent: '#7c3aed',
                         summary: 'Index-led pointing mode for buttons, interfaces, and precise directional interaction.'
                     },
                     tripod: {
                         name: 'Tripod',
-                        figure: 'three-pinch',
                         accent: '#be185d',
                         summary: 'Three-point precision grasp for smaller objects and fine manipulation.'
                     },
                     'thumbs-up': {
                         name: 'Thumbs Up',
-                        figure: 'three-spread',
                         accent: '#0891b2',
                         summary: 'Expressive confirmation pose with a clear social signal and a distinct visual identity.'
                     }
@@ -1340,19 +1147,12 @@
 
             renderControllerState() {
                 const mode = this.modeCatalog[this.controllerState.modeKey] || this.modeCatalog.idle;
-                const stage = document.getElementById('modeStage');
 
                 document.getElementById('modeName').textContent = mode.name;
                 document.getElementById('modeSummary').textContent = mode.summary;
                 const panel = document.getElementById('modePanel');
                 if (panel) {
                     panel.style.setProperty('--mode-accent', mode.accent);
-                }
-
-                if (stage) {
-                    stage.querySelectorAll('.mode-figure').forEach((figure) => {
-                        figure.classList.toggle('active', figure.dataset.modeFigure === mode.figure);
-                    });
                 }
             }
 
