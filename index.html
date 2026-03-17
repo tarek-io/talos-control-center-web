@@ -649,7 +649,7 @@
                 <div class="mode-copy-wrap">
                     <p class="mode-eyebrow">Current Mode</p>
                     <h2 id="modeName" class="mode-name">Standby</h2>
-                    <p id="modeSummary" class="mode-summary">Waiting for the next gesture. Demo mode and live serial both drive this panel, so the controller state can be designed without hardware.</p>
+                    <p id="modeSummary" class="mode-summary">Waiting for the next gesture. Demo mode and live serial both drive this panel, so the interface can be designed without hardware.</p>
                 </div>
                 <div class="mode-visual-wrap">
                     <div id="modeStage" class="mode-stage">
@@ -857,18 +857,14 @@
                     palm: null
                 };
                 this.controllerState = {
-                    modeKey: 'idle',
-                    source: 'Offline',
-                    lockState: 'Unlocked',
-                    lastGesture: 'None',
-                    stateLabel: 'Awaiting input'
+                    modeKey: 'idle'
                 };
                 this.modeCatalog = {
                     idle: {
                         name: 'Standby',
                         figure: 'idle',
                         accent: '#0f766e',
-                        summary: 'Waiting for the next gesture. Demo mode and live serial both drive this panel, so the controller state can be designed without hardware.'
+                        summary: 'Waiting for the next gesture. Demo mode and live serial both drive this panel, so the interface can be designed without hardware.'
                     },
                     'power-grasp': {
                         name: 'Power Grasp',
@@ -955,7 +951,6 @@
                     
                     this.isConnected = true;
                     this.updateConnectionStatus(true, `Connected - Receiving data from ${this.portSourceLabel}`);
-                    this.setControllerSource('Live Serial', 'Streaming input');
                     this.startReading();
                     
                 } catch (error) {
@@ -1006,7 +1001,6 @@
                 this.demoFrameIndex = 0;
                 this.clearSerialLog();
                 this.updateConnectionStatus(true, 'Connected - Receiving data from realistic demo source');
-                this.setControllerSource('Demo Stream', 'Running simulated input');
                 this.startDemoMode();
             }
 
@@ -1362,29 +1356,13 @@
                 }
             }
 
-            setControllerSource(source, stateLabel = null) {
-                this.controllerState.source = source;
-                if (stateLabel) {
-                    this.controllerState.stateLabel = stateLabel;
-                }
-                this.renderControllerState();
-            }
-
             resetModePreview() {
                 this.controllerState.modeKey = 'idle';
-                this.controllerState.lastGesture = 'None';
-                this.controllerState.stateLabel = this.isConnected
-                    ? (this.isDemoMode ? 'Running simulated input' : 'Streaming input')
-                    : 'Awaiting input';
                 this.renderControllerState();
             }
 
             resetControllerState() {
                 this.controllerState.modeKey = 'idle';
-                this.controllerState.source = 'Offline';
-                this.controllerState.lockState = 'Unlocked';
-                this.controllerState.lastGesture = 'None';
-                this.controllerState.stateLabel = 'Awaiting input';
                 this.renderControllerState();
             }
 
@@ -1399,14 +1377,6 @@
                 };
 
                 return map[name] || 'idle';
-            }
-
-            formatGestureName(name) {
-                return name
-                    .toLowerCase()
-                    .split('_')
-                    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-                    .join(' ');
             }
 
             mapRawXToCanvas(rawX) {
@@ -1451,14 +1421,6 @@
 
                 this.lastPalmDiagnostics = { palm };
                 diagEl.textContent = `Palm: ${palm ? 'DETECTED' : 'clear'}`;
-                if (palm) {
-                    this.controllerState.stateLabel = 'Palm reject active';
-                } else if (this.controllerState.modeKey === 'idle') {
-                    this.controllerState.stateLabel = this.isConnected
-                        ? (this.isDemoMode ? 'Running simulated input' : 'Streaming input')
-                        : 'Awaiting input';
-                }
-                this.renderControllerState();
             }
 
             clearPalmDiagnostics() {
@@ -1471,12 +1433,6 @@
                     palm: null
                 };
                 diagEl.textContent = 'Palm: -';
-                if (this.controllerState.modeKey === 'idle') {
-                    this.controllerState.stateLabel = this.isConnected
-                        ? (this.isDemoMode ? 'Running simulated input' : 'Streaming input')
-                        : 'Awaiting input';
-                    this.renderControllerState();
-                }
             }
 
             updateFingerCount(rawCount) {
@@ -1609,12 +1565,6 @@
                 this.beginReleaseFade(this.touchHistory2);
                 this.beginReleaseFade(this.touchHistory3);
                 this.clearTouchInfo();
-                if (this.controllerState.modeKey === 'idle') {
-                    this.controllerState.stateLabel = this.isConnected
-                        ? (this.isDemoMode ? 'Tracking clear' : 'Awaiting next contact')
-                        : 'Awaiting input';
-                    this.renderControllerState();
-                }
             }
 
             pushTouch(history, rawX, rawY, strength) {
@@ -1884,7 +1834,6 @@
                 const logEl = document.getElementById('gestureLog');
                 const ts = new Date().toLocaleTimeString();
                 const detail = `d=${Math.round(distance)} t=${Math.round(duration)}ms`;
-                const formattedGesture = this.formatGestureName(name);
 
                 currentEl.textContent = `${name} (${detail})`;
 
@@ -1893,8 +1842,6 @@
                 logEl.prepend(li);
 
                 this.controllerState.modeKey = this.modeKeyFromGesture(name);
-                this.controllerState.lastGesture = formattedGesture;
-                this.controllerState.stateLabel = `${this.modeCatalog[this.controllerState.modeKey].name} selected`;
                 this.renderControllerState();
 
                 while (logEl.children.length > this.gestureLogMax) {
