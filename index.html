@@ -785,7 +785,7 @@
                 this.reader = null;
                 this.isConnected = false;
                 this.isDemoMode = false;
-                this.portSourceLabel = 'selected serial port';
+                this.portLabel = 'selected serial port';
                 this.demoTimer = null;
                 this.demoFrameIndex = 0;
                 this.demoTickMs = 40;
@@ -947,10 +947,10 @@
                     }
                     this.port = await navigator.serial.requestPort();
                     await this.port.open({ baudRate: 115200 });
-                    this.portSourceLabel = this.describePortSource();
+                    this.portLabel = this.describePortLabel();
                     
                     this.isConnected = true;
-                    this.updateConnectionStatus(true, `Connected - Receiving data from ${this.portSourceLabel}`);
+                    this.updateConnectionStatus(true, `Connected - Receiving data from ${this.portLabel}`);
                     this.startReading();
                     
                 } catch (error) {
@@ -973,7 +973,7 @@
                 }
                 
                 this.isConnected = false;
-                this.portSourceLabel = 'selected serial port';
+                this.portLabel = 'selected serial port';
                 this.updateConnectionStatus(false);
                 this.primaryStroke.active = false;
                 this.twoFingerStroke.active = false;
@@ -995,7 +995,7 @@
 
                 this.clearTrail();
                 this.clearPalmDiagnostics();
-                this.portSourceLabel = 'realistic demo source';
+                this.portLabel = 'realistic demo source';
                 this.isDemoMode = true;
                 this.isConnected = true;
                 this.demoFrameIndex = 0;
@@ -1012,7 +1012,7 @@
                 this.isDemoMode = false;
             }
 
-            describePortSource() {
+            describePortLabel() {
                 if (!this.port || typeof this.port.getInfo !== 'function') {
                     return 'selected serial port';
                 }
@@ -1043,7 +1043,7 @@
                 
                 if (connected) {
                     statusEl.className = 'status connected';
-                    statusEl.textContent = message || `Connected - Receiving data from ${this.portSourceLabel}`;
+                    statusEl.textContent = message || `Connected - Receiving data from ${this.portLabel}`;
                     connectBtn.disabled = true;
                     demoBtn.disabled = true;
                     disconnectBtn.disabled = false;
