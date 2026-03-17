@@ -655,14 +655,20 @@
             border: 1px solid rgba(26, 42, 37, 0.12);
         }
 
-        .command-center-line {
+        .command-center-line,
+        .command-threshold-guide {
             position: absolute;
             top: 2px;
             bottom: 2px;
-            left: 0;
             width: 2px;
+            pointer-events: none;
+            z-index: 4;
             background: rgba(26, 42, 37, 0.18);
             border-radius: 999px;
+        }
+
+        .command-center-line {
+            left: 0;
         }
 
         .command-fill {
@@ -679,17 +685,6 @@
 
         .command-fill-close {
             background: linear-gradient(180deg, rgba(16, 185, 129, 0.94), rgba(15, 118, 110, 0.9));
-        }
-
-        .command-threshold-guide {
-            position: absolute;
-            top: 2px;
-            bottom: 2px;
-            width: 2px;
-            pointer-events: none;
-            z-index: 4;
-            border-radius: 999px;
-            background: rgba(26, 42, 37, 0.18);
         }
 
         .command-threshold-guide.is-off {
