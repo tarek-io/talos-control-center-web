@@ -4075,7 +4075,7 @@
                 displayEvents.forEach((event) => {
                     const x = xForIndex(Math.max(0, Math.min(sampleCount - 1, event.sampleIndex)));
                     const shortLabel = {
-                        mode_switch: 'MODE',
+                        mode_switch: 'MODE SWITCH',
                         drive_start: 'START',
                         drive_stop: 'END',
                         dual_activation: 'DUAL',
@@ -4089,13 +4089,19 @@
                     ctx.lineTo(x, canvas.height - margin.bottom);
                     ctx.stroke();
 
+                    ctx.font = '700 18px Aptos, Segoe UI Variable, sans-serif';
+                    const badgeTextWidth = ctx.measureText(shortLabel).width;
+                    const badgeWidth = Math.max(88, Math.ceil(badgeTextWidth + 24));
+                    const badgeHeight = 30;
+                    const badgeX = x - (badgeWidth / 2);
+                    const badgeY = margin.top - 40;
+
                     ctx.fillStyle = 'rgba(255, 247, 237, 0.98)';
-                    ctx.fillRect(x - 44, margin.top - 40, 88, 30);
+                    ctx.fillRect(badgeX, badgeY, badgeWidth, badgeHeight);
                     ctx.strokeStyle = 'rgba(124, 45, 18, 0.58)';
                     ctx.lineWidth = 1.8;
-                    ctx.strokeRect(x - 44, margin.top - 40, 88, 30);
+                    ctx.strokeRect(badgeX, badgeY, badgeWidth, badgeHeight);
                     ctx.fillStyle = '#7c2d12';
-                    ctx.font = '700 18px Aptos, Segoe UI Variable, sans-serif';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
                     ctx.fillText(shortLabel, x, margin.top - 25);
