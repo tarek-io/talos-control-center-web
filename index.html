@@ -5,33 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Talos Hand Control Center</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap');
-
         :root {
-            --bg-cream: #e2e7ee;
-            --bg-mint: #d7dde7;
-            --bg-wash: #f1f4f9;
-            --panel: rgba(255, 255, 255, 0.94);
-            --border: rgba(39, 45, 58, 0.14);
-            --border-strong: rgba(39, 45, 58, 0.24);
-            --ink: #171c24;
-            --muted: #4e5868;
-            --accent: #f24836;
-            --accent-strong: #d43d2f;
-            --danger: #f24836;
-            --danger-strong: #c83629;
-            --sky: #4a5568;
-            --sky-strong: #384252;
-            --canvas-surface: #13171d;
-            --serial-bg: #10141b;
-            --serial-border: #2d3644;
-            --serial-ink: #d7deea;
-            --shadow: 0 32px 92px rgba(17, 22, 29, 0.2);
+            --bg-cream: #f5efe3;
+            --bg-mint: #dfece6;
+            --bg-wash: #eff5f2;
+            --panel: rgba(255, 251, 244, 0.86);
+            --border: rgba(26, 42, 37, 0.12);
+            --border-strong: rgba(26, 42, 37, 0.22);
+            --ink: #16211e;
+            --muted: #5f6d68;
+            --accent: #0f766e;
+            --accent-strong: #0b5f59;
+            --danger: #b9382f;
+            --danger-strong: #932d27;
+            --sky: #2563eb;
+            --sky-strong: #1e4ec7;
+            --canvas-surface: #0f1413;
+            --serial-bg: #101614;
+            --serial-border: #24322d;
+            --serial-ink: #d8e7e0;
+            --shadow: 0 28px 80px rgba(33, 48, 43, 0.15);
             --radius-xl: 28px;
             --radius-lg: 20px;
             --radius-md: 14px;
-            --font-ui: "IBM Plex Sans Condensed", "Aptos", "Segoe UI Variable", "Trebuchet MS", sans-serif;
-            --font-display: "IBM Plex Serif", "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+            --font-ui: "Aptos", "Segoe UI Variable", "Trebuchet MS", sans-serif;
+            --font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
         }
 
         * {
@@ -44,8 +42,8 @@
             padding: 32px 20px 48px;
             min-height: 100vh;
             background:
-                radial-gradient(circle at 10% -10%, rgba(242, 72, 54, 0.24), transparent 38%),
-                radial-gradient(circle at 88% -12%, rgba(55, 65, 81, 0.2), transparent 40%),
+                radial-gradient(circle at top left, rgba(242, 72, 54, 0.1), transparent 32%),
+                radial-gradient(circle at top right, rgba(37, 99, 235, 0.12), transparent 28%),
                 linear-gradient(145deg, var(--bg-cream), var(--bg-mint) 56%, var(--bg-wash));
             display: flex;
             flex-direction: column;
@@ -56,11 +54,11 @@
         .container {
             position: relative;
             overflow: hidden;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(241, 245, 251, 0.96));
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(251, 247, 239, 0.88));
             border-radius: var(--radius-xl);
             padding: 28px;
             box-shadow: var(--shadow);
-            border: 1px solid rgba(255, 255, 255, 0.82);
+            border: 1px solid rgba(255, 255, 255, 0.55);
             max-width: 2160px;
             width: 100%;
         }
@@ -73,7 +71,7 @@
                 linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px),
                 linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px);
             background-size: 36px 36px;
-            opacity: 0.18;
+            opacity: 0.28;
             pointer-events: none;
         }
 
@@ -126,7 +124,7 @@
 
         .eyebrow {
             margin: 0 0 8px 0;
-            color: #cc3a2d;
+            color: var(--danger);
             font-size: 12px;
             font-weight: 700;
             letter-spacing: 0.22em;
@@ -139,7 +137,7 @@
             font-family: var(--font-display);
             font-size: clamp(32px, 5vw, 48px);
             line-height: 1;
-            letter-spacing: -0.02em;
+            letter-spacing: -0.03em;
         }
 
         .controls {
@@ -158,7 +156,7 @@
             border-radius: 999px;
             cursor: pointer;
             transition: transform 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease;
-            box-shadow: 0 10px 20px rgba(28, 34, 44, 0.12);
+            box-shadow: 0 10px 22px rgba(24, 33, 31, 0.08);
         }
 
         button:hover {
@@ -166,18 +164,18 @@
         }
 
         .connect-btn {
-            background: linear-gradient(180deg, #4e5968, var(--sky));
+            background: linear-gradient(180deg, #14857d, var(--accent));
             color: white;
         }
 
         .connect-btn:hover {
-            background: linear-gradient(180deg, #434d5b, var(--sky-strong));
+            background: linear-gradient(180deg, #169088, var(--accent-strong));
         }
 
         .connect-btn:disabled {
-            background: #c9cfda;
-            color: #787f8d;
-            border-color: rgba(120, 128, 141, 0.3);
+            background: #b8c8c4;
+            color: #7b8884;
+            border-color: rgba(123, 136, 132, 0.24);
             cursor: not-allowed;
             box-shadow: none;
             transform: none;
@@ -193,55 +191,55 @@
         }
 
         .disconnect-btn:disabled {
-            background: #d7dbe3;
-            color: #787f8d;
-            border-color: rgba(120, 128, 141, 0.3);
+            background: #d4d8d6;
+            color: #7b8884;
+            border-color: rgba(123, 136, 132, 0.24);
             cursor: not-allowed;
             box-shadow: none;
             transform: none;
         }
 
         .pause-btn {
-            background: linear-gradient(180deg, #4e5968, var(--sky));
+            background: linear-gradient(180deg, #377cf0, var(--sky));
             color: white;
-            border-color: rgba(60, 70, 85, 0.28);
+            border-color: rgba(37, 99, 235, 0.22);
         }
 
         .pause-btn:hover {
-            background: linear-gradient(180deg, #434d5b, var(--sky-strong));
+            background: linear-gradient(180deg, #2d70de, var(--sky-strong));
         }
 
         .pause-btn.is-active {
-            background: linear-gradient(180deg, #4e5968, var(--sky));
-            box-shadow: 0 12px 24px rgba(31, 36, 43, 0.2);
+            background: linear-gradient(180deg, #377cf0, var(--sky));
+            box-shadow: 0 12px 24px rgba(37, 99, 235, 0.18);
         }
 
         .pause-btn:disabled {
-            background: #d7dbe3;
-            color: #787f8d;
-            border-color: rgba(120, 128, 141, 0.3);
+            background: #d4d8d6;
+            color: #7b8884;
+            border-color: rgba(123, 136, 132, 0.24);
             cursor: not-allowed;
             box-shadow: none;
             transform: none;
         }
 
         .clear-btn {
-            background: linear-gradient(180deg, #4e5968, var(--sky));
+            background: linear-gradient(180deg, #377cf0, var(--sky));
             color: white;
         }
 
         .clear-btn:hover {
-            background: linear-gradient(180deg, #434d5b, var(--sky-strong));
+            background: linear-gradient(180deg, #2d70de, var(--sky-strong));
         }
 
         .demo-btn {
-            background: linear-gradient(180deg, #ff6a5a, var(--accent));
+            background: linear-gradient(180deg, #18a88b, #0f766e);
             color: white;
-            border-color: rgba(242, 72, 54, 0.32);
+            border-color: rgba(15, 118, 110, 0.28);
         }
 
         .demo-btn:hover {
-            background: linear-gradient(180deg, #ff5c4b, var(--accent-strong));
+            background: linear-gradient(180deg, #1bb696, #0c6257);
         }
 
         .controls-demo-btn {
@@ -265,9 +263,9 @@
         }
 
         .status.connected {
-            background: rgba(230, 236, 245, 0.9);
-            color: #273140;
-            border-color: rgba(60, 70, 85, 0.26);
+            background: rgba(217, 245, 236, 0.88);
+            color: #0c5f49;
+            border-color: rgba(15, 118, 110, 0.18);
         }
 
         .status.disconnected {
@@ -277,9 +275,9 @@
         }
 
         .status.paused {
-            background: rgba(238, 241, 246, 0.94);
-            color: #303845;
-            border-color: rgba(60, 70, 85, 0.22);
+            background: rgba(255, 243, 224, 0.94);
+            color: #9a4d00;
+            border-color: rgba(180, 83, 9, 0.22);
         }
 
         .mode-panel {
@@ -290,13 +288,13 @@
             border-radius: var(--radius-lg);
             background:
                 radial-gradient(circle at top right, rgba(255,255,255,0.55), transparent 28%),
-                linear-gradient(145deg, rgba(248, 250, 253, 0.98), rgba(232, 237, 244, 0.94));
-            border: 1px solid rgba(242, 72, 54, 0.22);
+                linear-gradient(145deg, rgba(245, 250, 247, 0.98), rgba(228, 240, 235, 0.94));
+            border: 1px solid rgba(15, 118, 110, 0.16);
             box-shadow:
-                0 16px 34px rgba(20, 28, 38, 0.11),
+                0 18px 42px rgba(20, 38, 31, 0.09),
                 inset 0 1px 0 rgba(255,255,255,0.55);
             overflow: hidden;
-            --mode-accent: var(--accent);
+            --mode-accent: #0f766e;
         }
 
         .mode-panel::before {
@@ -384,8 +382,8 @@
             max-height: 128px;
             overflow-y: auto;
             border-radius: 14px;
-            background: rgba(248, 250, 253, 0.96);
-            border: 1px solid rgba(39, 45, 58, 0.1);
+            background: rgba(255,255,255,0.9);
+            border: 1px solid rgba(26, 42, 37, 0.08);
         }
 
         .behavior-log:empty::before,
@@ -415,7 +413,7 @@
             margin: 0 auto;
             max-width: 100%;
             position: relative;
-            background: linear-gradient(180deg, rgba(255,255,255,0.8), rgba(239, 243, 249, 0.76));
+            background: linear-gradient(180deg, rgba(255,255,255,0.76), rgba(240, 246, 242, 0.72));
             padding: 12px;
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.5);
         }
@@ -471,10 +469,10 @@
         }
 
         .info-box {
-            background: rgba(248, 250, 253, 0.96);
+            background: rgba(255,255,255,0.9);
             padding: 16px;
             border-radius: 14px;
-            border: 1px solid rgba(39, 45, 58, 0.1);
+            border: 1px solid rgba(26, 42, 37, 0.08);
         }
 
         .info-box h3 {
@@ -570,8 +568,8 @@
             max-height: 88px;
             overflow-y: auto;
             border-radius: 14px;
-            background: rgba(248, 250, 253, 0.96);
-            border: 1px solid rgba(39, 45, 58, 0.1);
+            background: rgba(255,255,255,0.9);
+            border: 1px solid rgba(26, 42, 37, 0.08);
         }
 
         .gesture-log li {
@@ -584,9 +582,7 @@
             border: 1px solid var(--border);
             border-radius: var(--radius-lg);
             padding: 16px;
-            box-shadow:
-                inset 0 1px 0 rgba(255, 255, 255, 0.72),
-                0 12px 24px rgba(20, 26, 36, 0.06);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
         }
 
         .stack-title {
@@ -609,8 +605,8 @@
             border-radius: 18px;
             background:
                 radial-gradient(circle at top right, rgba(255,255,255,0.46), transparent 30%),
-                linear-gradient(150deg, rgba(248, 250, 253, 0.96), rgba(232, 237, 244, 0.94));
-            border: 1px solid rgba(242, 72, 54, 0.18);
+                linear-gradient(150deg, rgba(240, 247, 244, 0.96), rgba(228, 238, 233, 0.94));
+            border: 1px solid rgba(15, 118, 110, 0.16);
             margin-bottom: 0;
         }
 
@@ -652,7 +648,7 @@
             border-radius: 999px;
             overflow: hidden;
             background: linear-gradient(90deg, rgba(37, 99, 235, 0.14), rgba(15, 118, 110, 0.06) 50%, rgba(185, 56, 47, 0.14));
-            border: 1px solid rgba(31, 36, 43, 0.12);
+            border: 1px solid rgba(26, 42, 37, 0.12);
         }
 
         .command-center-line,
@@ -668,7 +664,7 @@
 
         .command-center-line {
             left: 0;
-            background: rgba(31, 36, 43, 0.22);
+            background: rgba(26, 42, 37, 0.18);
         }
 
         .command-threshold-guide {
@@ -738,7 +734,7 @@
             padding: 12px 12px 10px;
             border-radius: 14px;
             background: rgba(255, 255, 255, 0.54);
-            border: 1px solid rgba(39, 45, 58, 0.12);
+            border: 1px solid rgba(217, 119, 6, 0.12);
         }
 
         .command-speed-scale-header {
@@ -766,7 +762,7 @@
             height: 14px;
             border-radius: 999px;
             overflow: hidden;
-            background: linear-gradient(90deg, rgba(245, 158, 11, 0.1), rgba(251, 191, 36, 0.12));
+            background: linear-gradient(90deg, rgba(217, 119, 6, 0.08), rgba(251, 191, 36, 0.1));
             border: 1px solid rgba(26, 42, 37, 0.09);
         }
 
@@ -806,8 +802,8 @@
             border-radius: 18px;
             background:
                 radial-gradient(circle at top right, rgba(255,255,255,0.44), transparent 32%),
-                linear-gradient(155deg, rgba(248, 250, 253, 0.96), rgba(232, 237, 244, 0.94));
-            border: 1px solid rgba(242, 72, 54, 0.16);
+                linear-gradient(155deg, rgba(240, 247, 244, 0.96), rgba(231, 239, 235, 0.94));
+            border: 1px solid rgba(15, 118, 110, 0.14);
         }
 
         .adaptive-state-row {
@@ -829,7 +825,7 @@
         .adaptive-badge {
             padding: 8px 12px;
             border-radius: 999px;
-            background: rgba(242, 72, 54, 0.12);
+            background: rgba(15, 118, 110, 0.1);
             color: var(--accent-strong);
             font-size: 12px;
             font-weight: 700;
@@ -864,8 +860,8 @@
         .adaptive-metric {
             padding: 12px;
             border-radius: 14px;
-            background: rgba(248, 250, 253, 0.92);
-            border: 1px solid rgba(39, 45, 58, 0.1);
+            background: rgba(255,255,255,0.46);
+            border: 1px solid rgba(26, 42, 37, 0.08);
         }
 
         .adaptive-metric-label {
@@ -887,8 +883,8 @@
             gap: 12px;
             padding: 14px;
             border-radius: 16px;
-            background: rgba(248, 250, 253, 0.94);
-            border: 1px solid rgba(39, 45, 58, 0.1);
+            background: rgba(255, 255, 255, 0.56);
+            border: 1px solid rgba(26, 42, 37, 0.08);
         }
 
         .adaptive-section-header {
@@ -925,15 +921,15 @@
             gap: 8px;
             padding: 10px;
             border-radius: 14px;
-            background: rgba(255, 255, 255, 0.98);
-            border: 1px solid rgba(39, 45, 58, 0.1);
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(26, 42, 37, 0.08);
             min-height: 102px;
             transition: border-color 140ms ease, transform 140ms ease, box-shadow 140ms ease;
         }
 
         .adaptive-finger-card.is-active {
-            border-color: rgba(242, 72, 54, 0.24);
-            box-shadow: 0 12px 24px rgba(242, 72, 54, 0.1);
+            border-color: rgba(15, 118, 110, 0.22);
+            box-shadow: 0 12px 24px rgba(15, 118, 110, 0.08);
             transform: translateY(-1px);
         }
 
@@ -962,14 +958,14 @@
             width: 16px;
             height: 16px;
             border-radius: 999px;
-            border: 1px solid rgba(39, 45, 58, 0.18);
-            background: rgba(148, 163, 184, 0.28);
+            border: 1px solid rgba(26, 42, 37, 0.12);
+            background: rgba(148, 163, 184, 0.24);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.28);
         }
 
         .adaptive-finger-card.is-active .adaptive-finger-pad {
-            background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.7), rgba(242, 72, 54, 0.88));
-            border-color: rgba(242, 72, 54, 0.36);
+            background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.62), rgba(16, 185, 129, 0.86));
+            border-color: rgba(15, 118, 110, 0.28);
         }
 
         .adaptive-finger-track {
@@ -977,8 +973,8 @@
             height: 9px;
             border-radius: 999px;
             overflow: hidden;
-            background: rgba(39, 45, 58, 0.08);
-            border: 1px solid rgba(39, 45, 58, 0.1);
+            background: rgba(26, 42, 37, 0.08);
+            border: 1px solid rgba(26, 42, 37, 0.08);
         }
 
         .adaptive-finger-fill {
@@ -987,7 +983,7 @@
             top: 0;
             bottom: 0;
             border-radius: 999px;
-            background: linear-gradient(90deg, rgba(74, 85, 104, 0.94), rgba(242, 72, 54, 0.94));
+            background: linear-gradient(90deg, rgba(37, 99, 235, 0.9), rgba(16, 185, 129, 0.92));
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.24);
         }
 
@@ -1006,8 +1002,8 @@
         .adaptive-response-card {
             padding: 12px;
             border-radius: 14px;
-            background: rgba(255,255,255,0.98);
-            border: 1px solid rgba(39, 45, 58, 0.1);
+            background: rgba(255,255,255,0.9);
+            border: 1px solid rgba(26, 42, 37, 0.08);
         }
 
         .adaptive-response-card.lead-card {
@@ -1070,21 +1066,21 @@
         }
 
         .replay-btn {
-            background: linear-gradient(180deg, #5b6778, var(--sky));
+            background: linear-gradient(180deg, #377cf0, var(--sky));
             color: white;
         }
 
         .replay-btn:hover {
-            background: linear-gradient(180deg, #495566, var(--sky-strong));
+            background: linear-gradient(180deg, #2d70de, var(--sky-strong));
         }
 
         .utility-btn {
-            background: linear-gradient(180deg, #5b6778, var(--sky));
+            background: linear-gradient(180deg, #14857d, var(--accent));
             color: white;
         }
 
         .utility-btn:hover {
-            background: linear-gradient(180deg, #495566, var(--sky-strong));
+            background: linear-gradient(180deg, #169088, var(--accent-strong));
         }
 
         .timeline-btn:disabled {
@@ -1127,7 +1123,7 @@
             border: 1px solid var(--border-strong);
             border-radius: var(--radius-lg);
             overflow: hidden;
-            background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(245, 248, 252, 0.97));
+            background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248, 250, 249, 0.96));
             padding: 14px;
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.72);
         }
@@ -1137,7 +1133,7 @@
             width: 100%;
             height: auto;
             border-radius: 14px;
-            background: linear-gradient(180deg, #ffffff, #f5f7fb);
+            background: linear-gradient(180deg, #ffffff, #f7faf8);
         }
 
         .analysis-panel {
@@ -1148,8 +1144,8 @@
 
         .serial-panel {
             margin-top: 20px;
-            background: linear-gradient(180deg, rgba(20, 24, 31, 0.96), rgba(14, 17, 23, 0.97));
-            border: 1px solid rgba(69, 78, 96, 0.46);
+            background: linear-gradient(180deg, rgba(19, 27, 25, 0.95), rgba(13, 18, 17, 0.96));
+            border: 1px solid rgba(66, 88, 80, 0.46);
             border-radius: var(--radius-lg);
             padding: 16px;
             box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
@@ -1165,7 +1161,7 @@
 
         .serial-stats {
             font-size: 12px;
-            color: #9aa4b5;
+            color: #9bb3aa;
         }
 
         .serial-output {
@@ -1255,8 +1251,8 @@
             <div class="page-header">
                 <div class="page-header-main">
                     <div class="page-header-copy">
-                        <p class="eyebrow">Sarcomere Dynamics</p>
-                        <h1>Talos Control Center</h1>
+                        <p class="eyebrow">Talos Hand</p>
+                        <h1>Control Center</h1>
                     </div>
                     <div class="page-header-actions">
                         <img class="brand-logo" src="assets/sarcomere-logo-text.png" alt="Sarcomere Dynamics logo">
@@ -1664,6 +1660,7 @@
                 this.modeSpeedCaps = {
                     idle: 44,
                     'open-hand': 44,
+                    'power-grasp': 76,
                     'key-grasp': 58,
                     'tripod-grasp': 52,
                     point: 40,
@@ -1679,28 +1676,33 @@
                 this.modeCatalog = {
                     idle: {
                         name: 'Open Hand',
-                        accent: '#4b5563',
+                        accent: '#0f766e',
                         summary: 'Default relaxed posture.'
+                    },
+                    'power-grasp': {
+                        name: 'Power Grasp',
+                        accent: '#2563eb',
+                        summary: 'Secure full-hand grasp.'
                     },
                     'key-grasp': {
                         name: 'Key Grasp',
-                        accent: '#b45309',
+                        accent: '#16a34a',
                         summary: 'Lateral grip for thin objects.'
                     },
                     'tripod-grasp': {
                         name: 'Tripod Grasp',
-                        accent: '#f24836',
+                        accent: '#d97706',
                         summary: 'Three-point precision grasp.'
                     },
                     point: {
                         name: 'Point',
-                        accent: '#334155',
+                        accent: '#7c3aed',
                         summary: 'Index-led pointing posture.'
                     },
                     'thumbs-up': {
                         name: 'Thumbs Up',
-                        accent: '#f87171',
-                        summary: 'Thumb-led approval posture.'
+                        accent: '#0891b2',
+                        summary: 'Expressive approval pose.'
                     }
                 };
 
@@ -2394,10 +2396,10 @@
                             peakActivity: 0.9
                         });
                         return makeDriveFrame(
-                            'tripod-grasp',
+                            'power-grasp',
                             signal,
                             inactiveTactile,
-                            frameIndex === 0 ? [{ type: 'mode_switch', value: 'tripod-grasp' }] : []
+                            frameIndex === 0 ? [{ type: 'mode_switch', value: 'power-grasp' }] : []
                         );
                     }),
                     ...this.createControlDriveScene(releaseFrames, (frameIndex, frameCount) => {
@@ -2412,19 +2414,19 @@
                             tailFloor: 0.02
                         });
                         return makeDriveFrame(
-                            'tripod-grasp',
+                            'power-grasp',
                             signal,
                             inactiveTactile
                         );
                     }),
                     ...this.withTelemetry(
                         this.createIdleScene(this.demoScenePauseFrames),
-                        () => neutralTelemetry('tripod-grasp'),
+                        () => neutralTelemetry('power-grasp'),
                         inactiveTactile
                     ),
                     ...this.withTelemetry(
                         this.createPinchScene(2, 260, 320, 600, 320, 38),
-                        () => neutralTelemetry('tripod-grasp'),
+                        () => neutralTelemetry('power-grasp'),
                         inactiveTactile
                     ),
                     ...this.createDemoGestureCue('TWO_FINGER_PINCH'),
@@ -2795,7 +2797,7 @@
 
             demoSynthesizeRequestedSpeed(modeKey, state, openDrive, closeDrive) {
                 const threshold = this.emgActivationThreshold;
-                const modeCap = this.modeSpeedCaps[modeKey] ?? this.modeSpeedCaps['open-hand'];
+                const modeCap = this.modeSpeedCaps[modeKey] ?? this.modeSpeedCaps['power-grasp'];
                 const dominantDrive = state === 'open'
                     ? openDrive
                     : state === 'close'
@@ -3680,7 +3682,7 @@
                                            this.cardSpeedRiseStep,
                                            this.cardSpeedFallStep)
                     : 0;
-                const modeCap = Math.max(0, Math.min(100, this.modeSpeedCaps[speedModeKey] ?? this.modeSpeedCaps['open-hand']));
+                const modeCap = Math.max(0, Math.min(100, this.modeSpeedCaps[speedModeKey] ?? this.modeSpeedCaps['power-grasp']));
                 const activationThreshold = Math.max(0, Math.min(100, this.emgActivationThreshold || 0));
                 const releaseThreshold = Math.max(0, Math.min(100, this.emgReleaseThreshold || activationThreshold));
                 this.emgDriveDisplay.open = displayOpen;
@@ -3773,7 +3775,7 @@
                 const modeKey = this.controllerState.modeKey === 'idle' ? 'open-hand' : this.controllerState.modeKey;
                 const mode = this.modeCatalog[this.controllerState.modeKey] || this.modeCatalog.idle;
                 const assist = Math.max(0, Math.min(100, this.tactileState.assist || 0));
-                const contacts = Math.max(0, Math.min(3, this.tactileState.contacts || 0));
+                const contacts = Math.max(0, Math.min(5, this.tactileState.contacts || 0));
                 const available = !!this.tactileState.available;
                 const phaseMap = {
                     inactive: 'Idle',
@@ -3797,16 +3799,19 @@
                     adjusting: 'Force redistribution'
                 };
                 const fingerTemplates = {
-                    'open-hand': { thumb: 0.34, index: 0.33, middle: 0.33 },
-                    'key-grasp': { thumb: 1, index: 0.94, middle: 0.36 },
-                    'tripod-grasp': { thumb: 1, index: 0.92, middle: 0.78 },
-                    point: { thumb: 0.36, index: 0.12, middle: 0.22 },
-                    'thumbs-up': { thumb: 1, index: 0.16, middle: 0.1 }
+                    'open-hand': { thumb: 0.22, index: 0.22, middle: 0.2, ring: 0.18, little: 0.16 },
+                    'power-grasp': { thumb: 1, index: 0.94, middle: 0.9, ring: 0.82, little: 0.74 },
+                    'key-grasp': { thumb: 1, index: 0.94, middle: 0.36, ring: 0.12, little: 0.08 },
+                    'tripod-grasp': { thumb: 1, index: 0.92, middle: 0.78, ring: 0.14, little: 0.08 },
+                    point: { thumb: 0.36, index: 0.12, middle: 0.22, ring: 0.08, little: 0.06 },
+                    'thumbs-up': { thumb: 1, index: 0.16, middle: 0.1, ring: 0.08, little: 0.06 }
                 };
                 const fingerOrder = [
                     { key: 'thumb', short: 'TH', name: 'Thumb' },
                     { key: 'index', short: 'IN', name: 'Index' },
-                    { key: 'middle', short: 'MI', name: 'Middle' }
+                    { key: 'middle', short: 'MI', name: 'Middle' },
+                    { key: 'ring', short: 'RG', name: 'Ring' },
+                    { key: 'little', short: 'PK', name: 'Pinky' }
                 ];
                 const template = fingerTemplates[modeKey] || fingerTemplates['open-hand'];
                 const activeKeys = (available && tactileMode !== 'inactive' && contacts > 0)
@@ -3886,7 +3891,7 @@
                 const map = {
                     'DOUBLE_TAP': 'point',
                     'TWO_FINGER_DOUBLE_TAP': 'thumbs-up',
-                    'TWO_FINGER_SWIPE': 'tripod-grasp',
+                    'TWO_FINGER_SWIPE': 'power-grasp',
                     'TWO_FINGER_PINCH': 'key-grasp',
                     'THREE_FINGER_PINCH': 'tripod-grasp',
                     'THREE_FINGER_SWIPE': 'thumbs-up'
@@ -4056,7 +4061,7 @@
                             available: true,
                             mode: tactileMatch[1].toLowerCase(),
                             assist: Math.max(0, Math.min(100, parseInt(tactileMatch[2], 10))),
-                            contacts: Math.max(0, Math.min(3, parseInt(tactileMatch[3], 10)))
+                            contacts: Math.max(0, Math.min(5, parseInt(tactileMatch[3], 10)))
                         };
                         this.renderTactileState();
                         this.trackTactileBehaviorTransition();
@@ -4556,7 +4561,7 @@
                 const threshold = this.emgActivationThreshold;
                 const hysteresis = this.emgDominanceHysteresis;
                 let comparableDisplayMax = 72;
-                const modeSpeedCap = (modeKey) => this.modeSpeedCaps[modeKey] ?? this.modeSpeedCaps['open-hand'];
+                const modeSpeedCap = (modeKey) => this.modeSpeedCaps[modeKey] ?? this.modeSpeedCaps['power-grasp'];
 
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.fillStyle = '#ffffff';
@@ -4585,7 +4590,7 @@
                     ctx.fillStyle = index % 2 === 0 ? 'rgba(15, 118, 110, 0.028)' : 'rgba(37, 99, 235, 0.036)';
                     ctx.fillRect(margin.left, y, plotWidth, laneHeight);
 
-                    ctx.strokeStyle = 'rgba(31, 41, 55, 0.14)';
+                    ctx.strokeStyle = 'rgba(23, 34, 31, 0.12)';
                     ctx.beginPath();
                     ctx.moveTo(margin.left, y + laneHeight);
                     ctx.lineTo(canvas.width - margin.right, y + laneHeight);
@@ -4597,7 +4602,7 @@
                     const badgeY = y + (laneHeight / 2) - (badgeHeight / 2);
 
                     ctx.save();
-                    ctx.shadowColor = 'rgba(20, 26, 36, 0.1)';
+                    ctx.shadowColor = 'rgba(20, 38, 31, 0.08)';
                     ctx.shadowBlur = 16;
                     ctx.shadowOffsetY = 4;
                     drawRoundedRect(badgeX, badgeY, badgeWidth, badgeHeight, 16);
@@ -4606,20 +4611,20 @@
                     ctx.restore();
 
                     drawRoundedRect(badgeX, badgeY, badgeWidth, badgeHeight, 16);
-                    ctx.strokeStyle = 'rgba(31, 41, 55, 0.14)';
+                    ctx.strokeStyle = 'rgba(23, 34, 31, 0.12)';
                     ctx.lineWidth = 1.2;
                     ctx.stroke();
 
-                    ctx.fillStyle = 'rgba(23, 30, 41, 0.92)';
+                    ctx.fillStyle = 'rgba(23, 34, 31, 0.92)';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    ctx.font = '700 26px IBM Plex Sans Condensed, Aptos, Segoe UI Variable, sans-serif';
+                    ctx.font = '700 26px Aptos, Segoe UI Variable, sans-serif';
                     ctx.fillText(lane.labelLines[0], badgeX + (badgeWidth / 2), badgeY + (badgeHeight / 2) + 1);
                 });
 
                 if (samples.length === 0) {
-                    ctx.fillStyle = 'rgba(71, 85, 105, 0.78)';
-                    ctx.font = '600 24px IBM Plex Sans Condensed, Aptos, Segoe UI Variable, sans-serif';
+                    ctx.fillStyle = 'rgba(63, 82, 76, 0.74)';
+                    ctx.font = '600 24px Aptos, Segoe UI Variable, sans-serif';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
                     ctx.fillText('Waiting for layered control telemetry.', margin.left + (plotWidth / 2), margin.top + (plotHeight / 2));
@@ -4701,7 +4706,7 @@
                     ctx.setLineDash([]);
 
                     ctx.fillStyle = color;
-                    ctx.font = '700 18px IBM Plex Sans Condensed, Aptos, Segoe UI Variable, sans-serif';
+                    ctx.font = '700 18px Aptos, Segoe UI Variable, sans-serif';
                     ctx.textAlign = 'right';
                     ctx.textBaseline = 'middle';
                     ctx.fillText(label, margin.left - 14, y);
@@ -4737,8 +4742,8 @@
                 );
 
                 drawHorizontalRule(rawLaneIndex, 50, 'rgba(63, 82, 76, 0.34)', 'BIAS', [4, 6]);
-                drawHorizontalRule(driveLaneIndex, threshold, 'rgba(242, 72, 54, 0.7)', `ON ${threshold}`);
-                drawHorizontalRule(driveLaneIndex, this.emgReleaseThreshold, 'rgba(174, 68, 56, 0.5)', `OFF ${this.emgReleaseThreshold}`);
+                drawHorizontalRule(driveLaneIndex, threshold, 'rgba(180, 83, 9, 0.72)', `ON ${threshold}`);
+                drawHorizontalRule(driveLaneIndex, this.emgReleaseThreshold, 'rgba(120, 53, 15, 0.44)', `OFF ${this.emgReleaseThreshold}`);
 
                 const driveLaneTop = margin.top + (laneHeight * driveLaneIndex);
                 if (sampleCount > 1) {
@@ -4747,7 +4752,7 @@
                         const x2 = xForIndex(i + 1);
                         let fill = '';
                         if (dualActivationStates[i]) {
-                            fill = 'rgba(217, 119, 6, 0.09)';
+                            fill = 'rgba(180, 83, 9, 0.09)';
                         } else if (displaySamples[i].state === 'open') {
                             fill = 'rgba(59, 130, 246, 0.07)';
                         } else if (displaySamples[i].state === 'close') {
@@ -4776,26 +4781,26 @@
                                 link_fault: 'FAULT'
                             }[event.type] || event.type.toUpperCase());
 
-                    ctx.strokeStyle = 'rgba(174, 68, 56, 0.34)';
+                    ctx.strokeStyle = 'rgba(180, 83, 9, 0.34)';
                     ctx.lineWidth = 2.2;
                     ctx.beginPath();
                     ctx.moveTo(x, margin.top);
                     ctx.lineTo(x, canvas.height - margin.bottom);
                     ctx.stroke();
 
-                    ctx.font = '700 18px IBM Plex Sans Condensed, Aptos, Segoe UI Variable, sans-serif';
+                    ctx.font = '700 18px Aptos, Segoe UI Variable, sans-serif';
                     const badgeTextWidth = ctx.measureText(shortLabel).width;
                     const badgeWidth = Math.max(88, Math.ceil(badgeTextWidth + 24));
                     const badgeHeight = 30;
                     const badgeX = x - (badgeWidth / 2);
                     const badgeY = margin.top - 40;
 
-                    ctx.fillStyle = 'rgba(255, 244, 241, 0.98)';
+                    ctx.fillStyle = 'rgba(255, 247, 237, 0.98)';
                     ctx.fillRect(badgeX, badgeY, badgeWidth, badgeHeight);
-                    ctx.strokeStyle = 'rgba(174, 68, 56, 0.58)';
+                    ctx.strokeStyle = 'rgba(124, 45, 18, 0.58)';
                     ctx.lineWidth = 1.8;
                     ctx.strokeRect(badgeX, badgeY, badgeWidth, badgeHeight);
-                    ctx.fillStyle = '#9f3026';
+                    ctx.fillStyle = '#7c2d12';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
                     ctx.fillText(shortLabel, x, margin.top - 25);
@@ -4825,7 +4830,7 @@
                     ctx.setLineDash([]);
 
                     ctx.fillStyle = 'rgba(23, 34, 31, 0.88)';
-                    ctx.font = '700 19px IBM Plex Sans Condensed, Aptos, Segoe UI Variable, sans-serif';
+                    ctx.font = '700 19px Aptos, Segoe UI Variable, sans-serif';
                     ctx.textAlign = 'left';
                     ctx.textBaseline = 'middle';
                     ctx.fillText(item.label, rawLegendX + 40, rawLegendY);
@@ -4849,7 +4854,7 @@
                     ctx.setLineDash([]);
 
                     ctx.fillStyle = 'rgba(23, 34, 31, 0.88)';
-                    ctx.font = '700 19px IBM Plex Sans Condensed, Aptos, Segoe UI Variable, sans-serif';
+                    ctx.font = '700 19px Aptos, Segoe UI Variable, sans-serif';
                     ctx.textAlign = 'left';
                     ctx.textBaseline = 'middle';
                     ctx.fillText(item.label, driveLegendX + 40, driveLegendY);
@@ -4873,7 +4878,7 @@
                     ctx.setLineDash([]);
 
                     ctx.fillStyle = 'rgba(23, 34, 31, 0.88)';
-                    ctx.font = '700 19px IBM Plex Sans Condensed, Aptos, Segoe UI Variable, sans-serif';
+                    ctx.font = '700 19px Aptos, Segoe UI Variable, sans-serif';
                     ctx.textAlign = 'left';
                     ctx.textBaseline = 'middle';
                     ctx.fillText(item.label, speedLegendX + 40, speedLegendY);
@@ -4912,9 +4917,9 @@
                 // Draw grid
                 this.drawGrid();
 
-                this.drawTouchTrail(this.touchHistory1, ['#cbd5e1', '#64748b'], '#94a3b8');
-                this.drawTouchTrail(this.touchHistory2, ['#fecaca', '#f24836'], '#fca5a5');
-                this.drawTouchTrail(this.touchHistory3, ['#fdba74', '#b45309'], '#fcd34d');
+                this.drawTouchTrail(this.touchHistory1, ['#6cc4ff', '#1f6feb'], '#7dd3fc');
+                this.drawTouchTrail(this.touchHistory2, ['#ff8f8f', '#d6336c'], '#fca5a5');
+                this.drawTouchTrail(this.touchHistory3, ['#8ce99a', '#2f9e44'], '#b2f2bb');
                 this.drawControlTimeline();
             }
 
@@ -5010,7 +5015,6 @@
     </script>
 </body>
 </html>
-
 
 
 
