@@ -1660,11 +1660,9 @@
                 this.modeSpeedCaps = {
                     idle: 44,
                     'open-hand': 44,
-                    'power-grasp': 76,
                     'key-grasp': 58,
                     'tripod-grasp': 52,
-                    point: 40,
-                    'thumbs-up': 34
+                    point: 40
                 };
                 this.syntheticRawTick = 0;
                 this.syntheticCarrierMeanAbs = 0.72;
@@ -1678,11 +1676,6 @@
                         name: 'Open Hand',
                         accent: '#0f766e',
                         summary: 'Default relaxed posture.'
-                    },
-                    'power-grasp': {
-                        name: 'Power Grasp',
-                        accent: '#2563eb',
-                        summary: 'Secure full-hand grasp.'
                     },
                     'key-grasp': {
                         name: 'Key Grasp',
@@ -1698,11 +1691,6 @@
                         name: 'Point',
                         accent: '#7c3aed',
                         summary: 'Index-led pointing posture.'
-                    },
-                    'thumbs-up': {
-                        name: 'Thumbs Up',
-                        accent: '#0891b2',
-                        summary: 'Expressive approval pose.'
                     }
                 };
 
@@ -2396,10 +2384,10 @@
                             peakActivity: 0.9
                         });
                         return makeDriveFrame(
-                            'power-grasp',
+                            'tripod-grasp',
                             signal,
                             inactiveTactile,
-                            frameIndex === 0 ? [{ type: 'mode_switch', value: 'power-grasp' }] : []
+                            frameIndex === 0 ? [{ type: 'mode_switch', value: 'tripod-grasp' }] : []
                         );
                     }),
                     ...this.createControlDriveScene(releaseFrames, (frameIndex, frameCount) => {
@@ -2414,19 +2402,19 @@
                             tailFloor: 0.02
                         });
                         return makeDriveFrame(
-                            'power-grasp',
+                            'tripod-grasp',
                             signal,
                             inactiveTactile
                         );
                     }),
                     ...this.withTelemetry(
                         this.createIdleScene(this.demoScenePauseFrames),
-                        () => neutralTelemetry('power-grasp'),
+                        () => neutralTelemetry('tripod-grasp'),
                         inactiveTactile
                     ),
                     ...this.withTelemetry(
                         this.createPinchScene(2, 260, 320, 600, 320, 38),
-                        () => neutralTelemetry('power-grasp'),
+                        () => neutralTelemetry('tripod-grasp'),
                         inactiveTactile
                     ),
                     ...this.createDemoGestureCue('TWO_FINGER_PINCH'),
@@ -2797,7 +2785,7 @@
 
             demoSynthesizeRequestedSpeed(modeKey, state, openDrive, closeDrive) {
                 const threshold = this.emgActivationThreshold;
-                const modeCap = this.modeSpeedCaps[modeKey] ?? this.modeSpeedCaps['power-grasp'];
+                const modeCap = this.modeSpeedCaps[modeKey] ?? this.modeSpeedCaps['open-hand'];
                 const dominantDrive = state === 'open'
                     ? openDrive
                     : state === 'close'
@@ -3682,7 +3670,7 @@
                                            this.cardSpeedRiseStep,
                                            this.cardSpeedFallStep)
                     : 0;
-                const modeCap = Math.max(0, Math.min(100, this.modeSpeedCaps[speedModeKey] ?? this.modeSpeedCaps['power-grasp']));
+                const modeCap = Math.max(0, Math.min(100, this.modeSpeedCaps[speedModeKey] ?? this.modeSpeedCaps['open-hand']));
                 const activationThreshold = Math.max(0, Math.min(100, this.emgActivationThreshold || 0));
                 const releaseThreshold = Math.max(0, Math.min(100, this.emgReleaseThreshold || activationThreshold));
                 this.emgDriveDisplay.open = displayOpen;
@@ -3775,7 +3763,7 @@
                 const modeKey = this.controllerState.modeKey === 'idle' ? 'open-hand' : this.controllerState.modeKey;
                 const mode = this.modeCatalog[this.controllerState.modeKey] || this.modeCatalog.idle;
                 const assist = Math.max(0, Math.min(100, this.tactileState.assist || 0));
-                const contacts = Math.max(0, Math.min(5, this.tactileState.contacts || 0));
+                const contacts = Math.max(0, Math.min(3, this.tactileState.contacts || 0));
                 const available = !!this.tactileState.available;
                 const phaseMap = {
                     inactive: 'Idle',
@@ -3799,19 +3787,15 @@
                     adjusting: 'Force redistribution'
                 };
                 const fingerTemplates = {
-                    'open-hand': { thumb: 0.22, index: 0.22, middle: 0.2, ring: 0.18, little: 0.16 },
-                    'power-grasp': { thumb: 1, index: 0.94, middle: 0.9, ring: 0.82, little: 0.74 },
-                    'key-grasp': { thumb: 1, index: 0.94, middle: 0.36, ring: 0.12, little: 0.08 },
-                    'tripod-grasp': { thumb: 1, index: 0.92, middle: 0.78, ring: 0.14, little: 0.08 },
-                    point: { thumb: 0.36, index: 0.12, middle: 0.22, ring: 0.08, little: 0.06 },
-                    'thumbs-up': { thumb: 1, index: 0.16, middle: 0.1, ring: 0.08, little: 0.06 }
+                    'open-hand': { thumb: 0.34, index: 0.33, middle: 0.33 },
+                    'key-grasp': { thumb: 1, index: 0.94, middle: 0.36 },
+                    'tripod-grasp': { thumb: 1, index: 0.92, middle: 0.78 },
+                    point: { thumb: 0.36, index: 0.12, middle: 0.22 }
                 };
                 const fingerOrder = [
                     { key: 'thumb', short: 'TH', name: 'Thumb' },
                     { key: 'index', short: 'IN', name: 'Index' },
-                    { key: 'middle', short: 'MI', name: 'Middle' },
-                    { key: 'ring', short: 'RG', name: 'Ring' },
-                    { key: 'little', short: 'PK', name: 'Pinky' }
+                    { key: 'middle', short: 'MI', name: 'Middle' }
                 ];
                 const template = fingerTemplates[modeKey] || fingerTemplates['open-hand'];
                 const activeKeys = (available && tactileMode !== 'inactive' && contacts > 0)
@@ -3890,11 +3874,11 @@
             modeKeyFromGesture(name) {
                 const map = {
                     'DOUBLE_TAP': 'point',
-                    'TWO_FINGER_DOUBLE_TAP': 'thumbs-up',
-                    'TWO_FINGER_SWIPE': 'power-grasp',
+                    'TWO_FINGER_DOUBLE_TAP': 'key-grasp',
+                    'TWO_FINGER_SWIPE': 'tripod-grasp',
                     'TWO_FINGER_PINCH': 'key-grasp',
                     'THREE_FINGER_PINCH': 'tripod-grasp',
-                    'THREE_FINGER_SWIPE': 'thumbs-up'
+                    'THREE_FINGER_SWIPE': 'tripod-grasp'
                 };
 
                 return map[name] || 'idle';
@@ -4061,7 +4045,7 @@
                             available: true,
                             mode: tactileMatch[1].toLowerCase(),
                             assist: Math.max(0, Math.min(100, parseInt(tactileMatch[2], 10))),
-                            contacts: Math.max(0, Math.min(5, parseInt(tactileMatch[3], 10)))
+                            contacts: Math.max(0, Math.min(3, parseInt(tactileMatch[3], 10)))
                         };
                         this.renderTactileState();
                         this.trackTactileBehaviorTransition();
@@ -4561,7 +4545,7 @@
                 const threshold = this.emgActivationThreshold;
                 const hysteresis = this.emgDominanceHysteresis;
                 let comparableDisplayMax = 72;
-                const modeSpeedCap = (modeKey) => this.modeSpeedCaps[modeKey] ?? this.modeSpeedCaps['power-grasp'];
+                const modeSpeedCap = (modeKey) => this.modeSpeedCaps[modeKey] ?? this.modeSpeedCaps['open-hand'];
 
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.fillStyle = '#ffffff';
